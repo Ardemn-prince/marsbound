@@ -3,12 +3,12 @@ import type { Mission } from './model';
 import { noise,obstacles,regionAt,WORLD } from './world';
 import { TIME_SCALE } from './forecast';
 export const SCIENCE={
-  basalt:{name:'Volcanic stone',points:6,seconds:8,color:'#d8a46e',fact:'Basalt forms when lava cools. These rocks help scientists read the history of Martian volcanoes.',url:'https://science.nasa.gov/mars/facts/'},
-  mudstone:{name:'River mudstone',points:12,seconds:24,color:'#b7c7af',fact:'Fine sediment settles in quiet water. Jezero’s ancient delta preserves clues to a long-vanished lake.',url:'https://www.nasa.gov/missions/mars-2020-perseverance/perseverance-rover/nasas-perseverance-rover-deciphers-ancient-history-of-martian-lake/'},
-  clay:{name:'Water-locked clay',points:9,seconds:16,color:'#a8d6c5',fact:'Clay minerals can form when rock interacts with water. Finding them helps us investigate ancient wet environments.',url:'https://science.nasa.gov/mars/facts/'}
+  basalt:{name:'Volcanic stone',points:3,seconds:10,color:'#d8a46e',fact:'Basalt forms when lava cools. These rocks help scientists read the history of Martian volcanoes.',url:'https://science.nasa.gov/mars/facts/'},
+  mudstone:{name:'River mudstone',points:7,seconds:30,color:'#b7c7af',fact:'Fine sediment settles in quiet water. Jezero’s ancient delta preserves clues to a long-vanished lake.',url:'https://www.nasa.gov/missions/mars-2020-perseverance/perseverance-rover/nasas-perseverance-rover-deciphers-ancient-history-of-martian-lake/'},
+  clay:{name:'Water-locked clay',points:5,seconds:20,color:'#a8d6c5',fact:'Clay minerals can form when rock interacts with water. Finding them helps us investigate ancient wet environments.',url:'https://science.nasa.gov/mars/facts/'}
 };
 export type SampleKind=keyof typeof SCIENCE;
-export const RARITIES={common:{name:'Common',multiplier:1,time:1,color:'#c4b39a'},uncommon:{name:'Uncommon',multiplier:1.5,time:1.05,color:'#8ec7af'},rare:{name:'Rare',multiplier:3,time:1.2,color:'#8eb7e8'},pristine:{name:'Pristine',multiplier:6,time:1.45,color:'#e6c876'}} as const;
+export const RARITIES={common:{name:'Common',multiplier:1,time:1,color:'#c4b39a'},uncommon:{name:'Uncommon',multiplier:1.4,time:1.05,color:'#8ec7af'},rare:{name:'Rare',multiplier:2.5,time:1.2,color:'#8eb7e8'},pristine:{name:'Pristine',multiplier:5,time:1.45,color:'#e6c876'}} as const;
 export type StoneRarity=keyof typeof RARITIES;
 export type Sample=Vec2 & {id:string;kind:SampleKind;rarity:StoneRarity};
 export const rarityAt=(seed:number,region:'seitah'|'delta'|'margin'='seitah'):StoneRarity=>{const thresholds=region==='margin'?[.55,.78,.95]:region==='delta'?[.62,.86,.975]:[.7,.92,.985];return seed<thresholds[0]?'common':seed<thresholds[1]?'uncommon':seed<thresholds[2]?'rare':'pristine';};
