@@ -1,0 +1,1 @@
+export default function Home(){return <main className="p-12"><p className="text-emerald-300 tracking-widest">JEZERO EXPEDITION / 01</p><h1 className="text-6xl font-bold mt-6">MARSBOUND</h1><p className="mt-4">14 sols. One extraordinary mission.</p></main>}
