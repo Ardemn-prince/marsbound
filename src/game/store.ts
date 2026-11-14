@@ -10,11 +10,11 @@ import { tickRex } from './rex';
 import { tickHazards,deployBeacon } from './hazards';
 import { launch,buyUpgrade,requestSupply,tickProgression } from './progression';
 import { tickSurvival,toggleRover,service } from './survival';
-export const useMission=create<{mission:Mission;saveStatus:string;save:()=>void;load:()=>void;step:(dt:number,input:InputManager)=>void;interact:()=>void;togglePause:()=>void;openPanel:(panel:string|null)=>void;launch:(ids:string[])=>void;buy:(id:string)=>void;supply:()=>void;toggleCircuit:(key:keyof Mission['circuits'])=>void}>( (set,get)=>({
+export const useMission=create<{mission:Mission;saveStatus:string;save:()=>void;load:()=>void;step:(dt:number,input:InputManager)=>void;interact:()=>void;togglePause:()=>void;openPanel:(panel:string|null)=>void;launch:(ids:string[],character?:string)=>void;buy:(id:string)=>void;supply:()=>void;toggleCircuit:(key:keyof Mission['circuits'])=>void}>( (set,get)=>({
   mission:newMission(),saveStatus:'Saves stay in this browser on this device.',
   save:()=>set({saveStatus:saveMission(get().mission)}),
   load:()=>{const result=loadMission();set({saveStatus:result.message,...(result.mission?{mission:result.mission}:{})});},
-  launch:ids=>set({mission:launch(ids)}),
+  launch:(ids,character)=>set({mission:launch(ids,character)}),
   buy:id=>set(s=>({mission:buyUpgrade(s.mission,id)})),
   supply:()=>set(s=>({mission:requestSupply(s.mission)})),
   togglePause:()=>set(s=>({mission:{...s.mission,paused:!s.mission.paused}})),

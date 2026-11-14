@@ -1,3 +1,4 @@
+import {CHARACTERS} from './characters';
 import { newMission,type Mission } from './model';
 import { samples,SCIENCE } from './research';
 import { OUTFIT,UPGRADES } from './progression';
@@ -9,7 +10,7 @@ const finite=(v:unknown):v is number=>typeof v==='number'&&Number.isFinite(v);
 function shape(value:unknown,template:unknown):boolean{if(template===null)return true;if(Array.isArray(template))return Array.isArray(value)&&value.length<1000;if(record(template))return record(value)&&Object.entries(template).every(([k,v])=>shape(value[k],v));return typeof value===typeof template&&(typeof value!=='number'||Number.isFinite(value));}
 const vector=(v:unknown)=>record(v)&&finite(v.x)&&finite(v.y)&&v.x>=0&&v.x<=2400&&v.y>=0&&v.y<=1600;
 const strings=(v:unknown):v is string[]=>Array.isArray(v)&&v.every(s=>typeof s==='string'&&s.length<500);
-export function decodeSave(raw:string):Mission{if(raw.length>250000)throw new Error('Save is too large.');const data:unknown=JSON.parse(raw);if(!record(data)||data.version!==1||!record(data.mission)||!shape(data.mission,newMission()))throw new Error('Unsupported or damaged save.');const m=data.mission;
+export function decodeSave(raw:string):Mission{if(raw.length>250000)throw new Error('Save is too large.');const data:unknown=JSON.parse(raw);if(record(data)&&record(data.mission)&&data.mission.character===undefined)data.mission.character='nova';if(!record(data)||data.version!==1||!record(data.mission)||!shape(data.mission,newMission()))throw new Error('Unsupported or damaged save.');const m=data.mission;if(!CHARACTERS.some(c=>c.id===m.character))throw new Error('Invalid astronaut.');
   for(const key of ['inventory','collected','discoveries','explored','loadout','upgrades','loggedEvents','measuredEvents','timeline'])if(!strings(m[key]))throw new Error('Invalid save list.');
   if(!vector(m.player)||!vector(m.rover)||!vector(m.rex)||!record(m.rex)||!Array.isArray(m.rex.trail)||!m.rex.trail.every(vector)||(m.beacon!==null&&!vector(m.beacon)))throw new Error('Invalid saved position.');
   if(!finite(m.elapsed)||m.elapsed<0||m.elapsed>5040||!finite(m.points)||m.points<0||m.points>100000||!finite(m.capacity)||m.capacity<100||m.capacity>190||!finite(m.power)||m.power<0||m.power>m.capacity)throw new Error('Invalid saved resources.');
