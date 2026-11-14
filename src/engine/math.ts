@@ -9,7 +9,7 @@ export const wrappedDelta = (from:number,to:number,max:number) => {
   const delta=to-from;
   return Math.abs(delta)<=max/2?delta:delta-Math.sign(delta)*max;
 };
-export const wrappedDistance = (a:Vec2,b:Vec2,width=2400,height=1600) => {
+export const wrappedDistance = (a:Vec2,b:Vec2,width=4800,height=3200) => {
   const dx=Math.min(Math.abs(a.x-b.x),width-Math.abs(a.x-b.x));
   const dy=Math.min(Math.abs(a.y-b.y),height-Math.abs(a.y-b.y));
   return Math.hypot(dx,dy);
