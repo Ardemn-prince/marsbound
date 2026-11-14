@@ -6,7 +6,7 @@ export const noise=(x:number,y:number)=>{const n=Math.sin(x*127.1+y*311.7)*43758
 const loaded=new Map<string,number[][]>();
 /** Lazy region tile loading; boundaries are seamless world-space loading zones. */
 export function loadRegion(id:string){if(!loaded.has(id)){const r=REGIONS.find(r=>r.id===id)!;loaded.set(id,Array.from({length:50},(_,y)=>Array.from({length:Math.ceil((r.end-r.start)/32)},(_,x)=>Math.floor(noise(x+r.start/32,y)*5))));}return loaded.get(id)!;}
-export const obstacles:Rect[]=Array.from({length:85},(_,i)=>({x:80+noise(i,3)*2240,y:70+noise(i,9)*1460,w:25+noise(i,4)*40,h:18+noise(i,7)*28})).filter(r=>Math.hypot(r.x-600,r.y-560)>310);
+export const obstacles:Rect[]=Array.from({length:85},(_,i)=>({x:80+noise(i,3)*2240,y:70+noise(i,9)*1460,w:25+noise(i,4)*40,h:18+noise(i,7)*28})).filter(r=>!(r.x<1020&&r.x+r.w>90&&r.y<590&&r.y+r.h>230)&&Math.hypot(r.x-600,r.y-560)>310);
 export function drawTerrain(c:CanvasRenderingContext2D,view:Rect){for(const region of REGIONS){if(region.end<view.x||region.start>view.x+view.w)continue;const tiles=loadRegion(region.id);c.fillStyle=region.color;c.fillRect(region.start,0,region.end-region.start,WORLD.height);
   for(let y=Math.max(0,Math.floor(view.y/32));y<Math.min(50,Math.ceil((view.y+view.h)/32));y++)for(let x=0;x<tiles[y].length;x++){const wx=region.start+x*32;if(wx<view.x-32||wx>view.x+view.w)continue;const n=tiles[y][x];c.fillStyle=n===0?'#ffffff09':'#3827210c';if(n<2)c.fillRect(wx+4,y*32+7,20,3);if(n===3){c.fillStyle='#e2b89066';c.fillRect(wx+16,y*32+20,3,3);}}
   }

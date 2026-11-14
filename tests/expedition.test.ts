@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {newMission} from '../src/game/model';
+import {facilities,facilityWalls,stations,shelterAt} from '../src/game/base';
+import {contains} from '../src/engine/math';
+import {obstacles} from '../src/game/world';
+import {samples} from '../src/game/research';
+import {tickRex,rexTip} from '../src/game/rex';
+import {launch} from '../src/game/progression';
+import {decodeSave,encodeSave} from '../src/game/save';
+test('expanded facilities have accessible console positions and clear airlocks',()=>{for(const f of facilities){const door={x:f.x+f.w/2,y:f.y+f.h};assert.equal(facilityWalls.some(w=>contains(w,door,10)),false);const console=stations.find(s=>s.id===f.id)!;assert.equal(shelterAt(console),f.id);assert.equal(obstacles.some(o=>contains(o,console,20)),false);}});
+test('no samples or terrain obstacles are embedded in expanded base',()=>{for(const f of facilities){assert.equal(samples.some(s=>contains(f,s)),false);assert.equal(obstacles.some(o=>o.x<f.x+f.w&&o.x+o.w>f.x&&o.y<f.y+f.h&&o.y+o.h>f.y),false);}});
+test('Rex picks up a nearby sample into his cargo slot once',()=>{const sample=samples[0];let m=launch([]);m={...m,player:{...m.player,x:sample.x,y:sample.y},rex:{x:sample.x,y:sample.y,trail:[]},inventory:[samples[1].id,samples[2].id],collected:[samples[1].id,samples[2].id]};const next=tickRex(m,1/60);assert.equal(next.inventory.length,3);assert.ok(next.inventory.includes(sample.id));assert.match(next.message,/Rex:/);assert.equal(tickRex(next,1/60).inventory.length,3);});
+test('Rex catches up to rover and warns before hazards',()=>{const m={...launch([]),riding:true,rex:{x:400,y:650,trail:[{x:600,y:650}]}};assert.ok(tickRex(m,.1).rex.x>400);assert.match(rexTip({...m,elapsed:100}),/50 seconds/);});
+test('new mission waits for launch and restored missions remain paused',()=>{assert.equal(newMission().started,false);const m=launch(['solar','bank','moxie','supply']);assert.equal(m.started,true);const restored=decodeSave(encodeSave(m));assert.equal(restored.paused,true);assert.deepEqual(restored.loadout,m.loadout);});

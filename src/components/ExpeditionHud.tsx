@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState,type CSSProperties} from 'react';
 import type {Mission} from '@/game/model';
+import {rexTip} from '@/game/rex';
 import {forecast} from '@/game/forecast';
 import {SCIENCE,sampleById} from '@/game/research';
 import {interactionHint} from '@/game/hints';
@@ -20,6 +21,7 @@ export default function ExpeditionHud({m}:{m:Mission}){const f=forecast(m.elapse
       <Gauge label="Crew safety" value={m.safety} kind="health"/><Gauge label="Oxygen" value={m.oxygen} kind="air"/><Gauge label="Battery" value={m.power} max={m.capacity} kind="energy"/>
       {(f.active||(f.until>0&&f.until<=60)||f.night)&&<div className="survival-alert">{f.active?f.kind.toUpperCase()+' EVENT':f.night?'FREEZING NIGHT':f.kind.toUpperCase()+' IN '+Math.ceil(f.until)+'s'}</div>}
     </section>
+    {m.started&&(f.active||(f.until>0&&f.until<=60)||m.inventory.length>=3||Math.floor(m.elapsed)%24<7)&&<aside className="rex-dialog" aria-label="Rex companion"><span className="rex-face">RΞX</span><div><b>REX <small>EXPEDITION COMPANION</small></b><p>{rexTip(m)}</p></div></aside>}
     <nav className="survival-belt" aria-label="Quick inventory and equipment">
       <button className="belt-pack" onClick={()=>store.openPanel('inventory')} aria-label="Open inventory"><Sprite kind="pack"/><small>BAG</small></button>
       <div className="belt-slots">{Array.from({length:4},(_,i)=>{const sample=sampleById(m.inventory[i]);return <button className={'belt-slot '+(selected===i?'selected':'')} style={{'--item-color':sample?SCIENCE[sample.kind].color:'#918173'} as CSSProperties} key={'sample'+i} onClick={()=>{setSelected(i);store.openPanel('inventory');}} aria-label={sample?SCIENCE[sample.kind].name:'Empty sample slot '+(i+1)} title={sample?SCIENCE[sample.kind].name:'Empty sample slot'}><span className="slot-index">{i+1}</span>{sample&&<><Sprite kind="rock"/><span className="slot-count">1</span></>}</button>})}{tools.map((tool,i)=><button key={tool.kind} className={'belt-slot '+(selected===i+4?'selected':'')} onClick={()=>{setSelected(i+4);tool.action();}} aria-label={tool.name} title={tool.name+' · '+tool.key}><span className="slot-index">{tool.key}</span><Sprite kind={tool.kind}/>{tool.kind==='rover'&&<span className="slot-count">{Math.round(m.roverCharge)}%</span>}{tool.kind==='beacon'&&<span className="slot-count">{m.beacon?'ON':'1'}</span>}</button>)}</div>
