@@ -8,5 +8,5 @@ export const characterById=(id:string)=>CHARACTERS.find(c=>c.id===id)??CHARACTER
 export const ADVENTURE_KITS=[
   {id:'cozy',name:'Cozy Base',icon:'home',tag:'GREAT FIRST TRIP',summary:'More power. Extra air. A safe place to come home.',items:['solar','bank','moxie','supply'],tip:'A little extra backup makes a big adventure easier!'},
   {id:'explorer',name:'Trail Blazer',icon:'rover',tag:'LET’S GO PLACES',summary:'A speedy rover and room for more rocks.',items:['turbo','solar','shield'],tip:'We’ll travel faster! Remember to head home before dark.'},
-  {id:'scientist',name:'Rock Star',icon:'scanner',tag:'CURIOUS MINDS',summary:'Scan rocks faster. Rex helps find more science.',items:['drill','auto','solar','bank'],tip:'So many rocks, so many stories. Let’s discover them together!'},
+  {id:'scientist',name:'Rock Star',icon:'scanner',tag:'CURIOUS MINDS',summary:'Scan rocks faster. Rex helps find more science, with extra protection and emergency reserves.',items:['drill','auto','shield','supply'],tip:'So many rocks, so many stories. Let’s discover them together!'},
 ] as const;
