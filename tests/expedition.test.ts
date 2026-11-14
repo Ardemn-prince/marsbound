@@ -5,7 +5,7 @@ import {facilities,facilityWalls,facilityPowered,greenhouseFoodInterval,stations
 import {contains} from '../src/engine/math';
 import {BASE_CENTER,obstacles,regionAt,structures} from '../src/game/world';
 import {RARITIES,rarityAt,researchValue,samples,startScan} from '../src/game/research';
-import {tickRex,rexTip} from '../src/game/rex';
+import {REX_ROCK_PICKUP_COOLDOWN,tickRex,rexTip} from '../src/game/rex';
 import {roverFacesRight} from '../src/game/rover';
 import {launch} from '../src/game/progression';
 import {decodeSave,encodeSave,listMissionSaves,saveMission} from '../src/game/save';
@@ -13,7 +13,7 @@ import {CHARACTERS,ADVENTURE_KITS} from '../src/game/characters';
 import {OUTFIT} from '../src/game/progression';
 import {movePlayer} from '../src/game/player';
 import {bed} from '../src/game/base';
-import {powerFlow,service,SLEEP_DEPRIVATION_DAMAGE,SLEEP_DEPRIVATION_GRACE,SLEEP_DRAIN_ACTIVE,SLEEP_DRAIN_IDLE,SLEEP_TIME_MULTIPLIER,SUSTENANCE_DRAIN_ACTIVE,TEMPERATURE_CHANGE_RATE,tickSurvival} from '../src/game/survival';
+import {canCollectSample,powerFlow,service,SLEEP_DEPRIVATION_DAMAGE,SLEEP_DEPRIVATION_GRACE,SLEEP_DRAIN_ACTIVE,SLEEP_DRAIN_IDLE,SLEEP_TIME_MULTIPLIER,SLEEP_TIRED_THRESHOLD,SUSTENANCE_DRAIN_ACTIVE,TEMPERATURE_CHANGE_RATE,tickSurvival} from '../src/game/survival';
 import {MARS_SOL_SECONDS,EARTH_SOL_SECONDS,SOL_SECONDS,TIME_SCALE,experiencedTemperature,outsideTemperature} from '../src/game/forecast';
 import {tickHazards} from '../src/game/hazards';
 import {interactionHint} from '../src/game/hints';
@@ -21,7 +21,8 @@ test('each adventure kit stays within the 1000 credit allowance',()=>{for(const 
 test('every astronaut survives save and load; older saves receive a default',()=>{for(const c of CHARACTERS){const m=launch(['solar'],c.id);assert.equal(m.character,c.id);assert.equal(decodeSave(encodeSave(m)).character,c.id);}const old=JSON.parse(encodeSave(launch([])));delete old.mission.character;delete old.mission.sleepDeprivation;const restored=decodeSave(JSON.stringify(old));assert.equal(restored.character,'nova');assert.equal(restored.sleepDeprivation,0);old.mission.character='invalid';assert.throws(()=>decodeSave(JSON.stringify(old)));});
 test('expanded facilities have accessible console positions and clear airlocks',()=>{for(const f of facilities){const door={x:f.x+f.w/2,y:f.y+f.h};assert.equal(facilityWalls.some(w=>contains(w,door,10)),false);const console=stations.find(s=>s.id===f.id)!;assert.equal(shelterAt(console),f.id);assert.equal(obstacles.some(o=>contains(o,console,20)),false);}});
 test('no samples or terrain obstacles are embedded in expanded base',()=>{for(const f of facilities){assert.equal(samples.some(s=>contains(f,s)),false);assert.equal(obstacles.some(o=>o.x<f.x+f.w&&o.x+o.w>f.x&&o.y<f.y+f.h&&o.y+o.h>f.y),false);}});
-test('Rex picks up a nearby sample into the fourth cargo slot once',()=>{const sample=samples[0];let m=launch([]);m={...m,player:{...m.player,x:sample.x,y:sample.y},rex:{x:sample.x,y:sample.y,trail:[]},inventory:[samples[1].id,samples[2].id,samples[3].id],collected:[samples[1].id,samples[2].id,samples[3].id]};const next=tickRex(m,1/60);assert.equal(next.inventory.length,4);assert.ok(next.inventory.includes(sample.id));assert.match(next.message,/Rex:/);assert.equal(tickRex(next,1/60).inventory.length,4);});
+test('Rex picks up a nearby sample into the fourth cargo slot once',()=>{const sample=samples[0];let m=launch([]);m={...m,player:{...m.player,x:sample.x,y:sample.y},rex:{x:sample.x,y:sample.y,trail:[]},inventory:[samples[1].id,samples[2].id,samples[3].id],collected:[samples[1].id,samples[2].id,samples[3].id]};const next=tickRex(m,1/60);assert.equal(next.inventory.length,4);assert.ok(next.inventory.includes(sample.id));assert.match(next.message,/Rex:/);assert.equal(next.rexPickupCooldown,REX_ROCK_PICKUP_COOLDOWN);const waiting={...next,inventory:next.inventory.slice(0,3),player:{...next.player,x:samples[4].x,y:samples[4].y},rex:{x:samples[4].x,y:samples[4].y,trail:[]}};assert.equal(tickRex(waiting,1).inventory.length,3);assert.equal(tickRex({...waiting,rexPickupCooldown:0},1).inventory.length,4);});
+test('tired astronauts cannot collect rocks',()=>{const mission=launch([]);assert.equal(SLEEP_TIRED_THRESHOLD,25);assert.equal(canCollectSample({...mission,sleep:24}),false);assert.equal(canCollectSample({...mission,sleep:25}),true);});
 test('Rex catches up to rover and warns before hazards',()=>{const m={...launch([]),riding:true,rex:{x:400,y:650,trail:[{x:600,y:650}]}};assert.ok(tickRex(m,.1).rex.x>400);assert.match(rexTip({...m,elapsed:100}),/Dust storm in \d+ seconds/);});
 test('Rex explains radiation protection by shelter',()=>{const radiation=7*SOL_SECONDS+160*(SOL_SECONDS/360);assert.match(rexTip({...launch([]),elapsed:radiation}),/Get inside.*full protection/);assert.match(rexTip({...launch([]),elapsed:radiation,shelter:'greenhouse'}),/reduces exposure.*full protection/);assert.match(rexTip({...launch(['shield']),elapsed:radiation,shelter:'command'}),/shielding will block/);});
 test('new mission waits for launch and restored missions remain paused',()=>{assert.equal(newMission().started,false);const m=launch(['solar','bank','moxie','supply']);assert.equal(m.started,true);const restored=decodeSave(encodeSave(m));assert.equal(restored.paused,true);assert.deepEqual(restored.loadout,m.loadout);});
