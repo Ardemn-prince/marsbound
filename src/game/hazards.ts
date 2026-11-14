@@ -1,10 +1,11 @@
 import { clamp } from '@/engine/math';
 import type { Mission } from './model';
 import { forecast,SOL_SECONDS } from './forecast';
-export function tickHazards(m:Mission,dt:number):Mission{const f=forecast(m.elapsed);let next={...m};const outside=!m.shelter;const exposure=(f.night&&outside?.18:0)+(f.active&&outside?(f.kind==='radiation'?.5:.08):0);next.safety=clamp(m.safety-(exposure*(m.upgrades.includes('suit')?.5:1)+(f.active&&f.kind==='radiation'&&m.shelter&&!m.loadout.includes('shield')?.06:0))*dt,0,100);
+export function tickHazards(m:Mission,dt:number):Mission{const f=forecast(m.elapsed);let next={...m};const outside=!m.shelter;const exposure=(f.night&&outside?.18:0)+(f.active&&outside?(f.kind==='radiation'?.5:.08):0);next.safety=clamp(m.safety-(exposure*(m.upgrades.includes('suit')?.5:1)+(f.active&&f.kind==='radiation'&&m.shelter&&!(m.shelter==='command'&&m.loadout.includes('shield'))?.06:0))*dt,0,100);
   const eventId=`${f.sol}-${f.kind}`;
-  if(f.phase>=f.start+55&&!m.loggedEvents.includes(eventId)&&((f.kind==='dust'&&m.beacon)||(f.kind==='radiation'&&m.shelter==='command'))){next={...next,points:next.points+20,loggedEvents:[...next.loggedEvents,eventId],message:'Weather data logged safely. +20 research points.',timeline:[...next.timeline,`Sol ${f.sol}: recorded a ${f.kind} event (+20 points).`]};}
-  if(next.safety<15&&outside){next={...next,player:{...next.player,x:550,y:490},shelter:'command',rex:{x:530,y:490,trail:[]},points:Math.max(0,next.points-10),safety:25,message:'Rex brought you home! Rescue cost 10 points. Rest and restore life support.',timeline:[...next.timeline,`Sol ${f.sol}: Rex returned the crew to shelter.`]};}
+  if(f.active&&((f.kind==='dust'&&m.beacon)||(f.kind==='radiation'&&m.shelter==='command'))&&!m.measuredEvents.includes(eventId))next.measuredEvents=[...m.measuredEvents,eventId];
+  if(f.phase>=f.start+55&&!m.loggedEvents.includes(eventId)&&m.measuredEvents.includes(eventId)){next={...next,points:next.points+20,loggedEvents:[...next.loggedEvents,eventId],message:'Weather data logged safely. +20 research points.',timeline:[...next.timeline,`Sol ${f.sol}: recorded a ${f.kind} event (+20 points).`]};}
+  if(next.safety<15&&outside){next={...next,riding:false,player:{...next.player,x:550,y:490},shelter:'command',rex:{x:530,y:490,trail:[]},points:Math.max(0,next.points-10),safety:25,message:'Rex brought you home! Rescue cost 10 points. Rest and restore life support.',timeline:[...next.timeline,`Sol ${f.sol}: Rex returned the crew to shelter.`]};}
   if(next.safety<=0)next={...next,outcome:'evacuated',message:'The rescue crew has you. Your discoveries will help the next expedition.'};
   else if(next.elapsed>=14*SOL_SECONDS)next={...next,elapsed:14*SOL_SECONDS,outcome:next.points>=200?'success':'partial',message:next.points>=200?'Survey complete! Your research will help design the next Mars habitat.':'Crew safely home. Your discoveries give the next expedition a head start.'};
   return next;

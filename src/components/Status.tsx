@@ -1,3 +1,0 @@
-'use client';
-import { useMission } from '@/game/store';
-export default function Status(){const message=useMission(s=>s.mission.message);const paused=useMission(s=>s.mission.paused);const points=useMission(s=>s.mission.points);const inventory=useMission(s=>s.mission.inventory.length);const scan=useMission(s=>Math.ceil(s.mission.scanning?.remaining??0));return <div className="py-4"><p>{paused?'MISSION PAUSED':message}</p><p className="mt-2 text-emerald-200">Research {points} / 200 · Samples {inventory} / 2 {scan>0&&`· Scan ${scan}s`}</p><p className="text-sm text-stone-400 mt-2">WASD / arrows · Move　 Shift · Dash　 E · Interact　 F · Light　 Esc · Pause</p></div>}
