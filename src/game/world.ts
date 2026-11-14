@@ -19,7 +19,7 @@ export const structures:WorldStructure[]=[
   {id:'duneField',region:'delta',x:2400,y:2850,kind:'dune'},
   {id:'dryChannel',region:'margin',x:2400,y:260,kind:'channel'},
 ];
-const baseBounds={x:1990,y:1470,w:830,h:260};
+const baseBounds={x:1950,y:1390,w:1300,h:420};
 export const obstacles:Rect[]=Array.from({length:210},(_,i)=>({x:80+noise(i,3)*(WORLD.width-160),y:70+noise(i,9)*(WORLD.height-140),w:25+noise(i,4)*40,h:18+noise(i,7)*28})).filter(r=>!(r.x<baseBounds.x+baseBounds.w&&r.x+r.w>baseBounds.x&&r.y<baseBounds.y+baseBounds.h&&r.y+r.h>baseBounds.y)&&!structures.some(s=>Math.abs(s.x-r.x)<100&&Math.abs(s.y-r.y)<100)&&wrappedDistance({x:r.x+r.w/2,y:r.y+r.h/2},BASE_CENTER)>480);
 const mix=(from:string,to:string,amount:number)=>{const a=from.match(/\w\w/g)!.map(v=>parseInt(v,16)),b=to.match(/\w\w/g)!.map(v=>parseInt(v,16));return `#${a.map((v,i)=>Math.round(v+(b[i]-v)*amount).toString(16).padStart(2,'0')).join('')}`;};
 const smooth=(n:number)=>n*n*(3-2*n);
