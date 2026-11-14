@@ -1,6 +1,6 @@
 import type { Rect,Vec2 } from '@/engine/math';
 export const WORLD={width:2400,height:1600,tile:32};
-export const REGIONS=[{id:'seitah',name:'Séítah crater floor',subtitle:'Volcanic plains',start:0,end:960,color:'#bb795c'},{id:'delta',name:'Three Forks delta',subtitle:'Ancient riverbed',start:960,end:1696,color:'#b89875'},{id:'margin',name:'Carbonate margin',subtitle:'The crater rim',start:1696,end:2400,color:'#aa8875'}];
+export const REGIONS=[{id:'seitah',name:'Séítah crater floor',subtitle:'Volcanic plains',start:0,end:960,color:'#cb805c'},{id:'delta',name:'Three Forks delta',subtitle:'Ancient riverbed',start:960,end:1696,color:'#c9a778'},{id:'margin',name:'Carbonate margin',subtitle:'The crater rim',start:1696,end:2400,color:'#b88b72'}];
 export const regionAt=(p:Vec2)=>REGIONS.find(r=>p.x>=r.start&&p.x<r.end)??REGIONS[2];
 export const noise=(x:number,y:number)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);};
 const loaded=new Map<string,number[][]>();
@@ -12,5 +12,5 @@ export function drawTerrain(c:CanvasRenderingContext2D,view:Rect){for(const regi
   }
   // Winding dry channels and wind-shaped sediment, built from coarse pixel steps.
   for(let y=0;y<1600;y+=16){const x=1200+Math.round(Math.sin(y/140)*90/16)*16;c.fillStyle='#876d5a';c.fillRect(x,y,56,16);c.fillStyle='#d4b28b';c.fillRect(x+56,y,12,16);}
-  for(const o of obstacles){if(o.x<view.x-100||o.x>view.x+view.w+100||o.y<view.y-100||o.y>view.y+view.h+100)continue;c.fillStyle='#704b3e66';c.fillRect(o.x+8,o.y+o.h-4,o.w+8,12);c.fillStyle='#76564a';c.fillRect(o.x,o.y+7,o.w,o.h-7);c.fillStyle='#a18066';c.fillRect(o.x+5,o.y,o.w-12,12);c.fillStyle='#c39b79';c.fillRect(o.x+8,o.y+2,o.w-19,4);}
+  for(const o of obstacles){if(o.x<view.x-100||o.x>view.x+view.w+100||o.y<view.y-100||o.y>view.y+view.h+100)continue;c.fillStyle='#704b3e66';c.fillRect(o.x+8,o.y+o.h-4,o.w+8,12);c.fillStyle='#533b3e';c.fillRect(Math.round(o.x)-2,Math.round(o.y)+5,Math.round(o.w)+4,Math.round(o.h)-3);c.fillStyle='#94634f';c.fillRect(Math.round(o.x),Math.round(o.y)+7,Math.round(o.w),Math.round(o.h)-7);c.fillStyle='#bb855f';c.fillRect(o.x+5,o.y,o.w-12,12);c.fillStyle='#e5b77f';c.fillRect(o.x+8,o.y+2,o.w-19,4);}
 }
