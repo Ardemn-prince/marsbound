@@ -2,11 +2,12 @@
 import {useEffect,useState,type CSSProperties} from 'react';
 import type {Mission} from '@/game/model';
 import {rexTip} from '@/game/rex';
-import {forecast,SOL_SECONDS} from '@/game/forecast';
+import {forecast,SOL_SECONDS,TIME_SCALE,experiencedTemperature} from '@/game/forecast';
 import {SCIENCE,sampleById} from '@/game/research';
 import {interactionHint} from '@/game/hints';
 import {useMission} from '@/game/store';
 import {gameInput} from './GameCanvas';
+import {greenhouseFoodInterval} from '@/game/base';
 
 function Sprite({kind}:{kind:string}){return <span className={'item-art item-'+kind} aria-hidden="true"/>;}
 function Gauge({label,value,max=100,kind}:{label:string;value:number;max?:number;kind:string}){return <div className={'survival-gauge '+kind} role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.round(value)} title={label+': '+Math.round(value)+' / '+max}><span className="gauge-emblem">{kind==='health'?'♥':kind==='air'?'O₂':kind==='sleep'?'Zz':kind==='food'?'●':'ϟ'}</span><div className="gauge-well"><i style={{height:Math.max(0,Math.min(100,value/max*100))+'%'}}/></div><small>{Math.round(value)}</small></div>;}
@@ -17,10 +18,11 @@ export default function ExpeditionHud({m}:{m:Mission}){const f=forecast(m.elapse
     <button className="survival-menu" onClick={store.togglePause} aria-label="Pause and mission menu" title="Pause · Esc">▾</button>
     <section className="survival-status" aria-label="Mission time and life support">
       <div className="day-plaque"><small>SOL</small><strong>{Math.min(14,f.sol)}</strong><span>/ 14</span></div>
-      <button className={'weather-dial '+(f.night?'is-night':'')} onClick={()=>store.openPanel('power')} aria-label={'Weather: '+(f.active?f.kind:f.night?'freezing night':'daylight')+'. Open power management.'} title="Day / night cycle · Power management"><div className="dial-face"><span className="dial-sun">☀</span><span className="dial-moon">☾</span><i className="dial-hand" style={{transform:'rotate('+(f.phase/SOL_SECONDS*360-90)+'deg)'}}/><b className="dial-pin"/></div><span className="dial-caption">{f.active?f.kind.toUpperCase():f.night?'−75°C':'−23°C'}</span></button>
+      <button className={'weather-dial '+(f.night?'is-night':'')} onClick={()=>store.openPanel('power')} aria-label={'Feels like '+experiencedTemperature(m)+'°C. Open power management.'} title="Feels like temperature · Open power management"><div className="dial-face"><span className="dial-sun">☀</span><span className="dial-moon">☾</span><i className="dial-hand" style={{transform:'rotate('+(f.phase/SOL_SECONDS*360-90)+'deg)'}}/><b className="dial-pin"/></div><span className="dial-caption">FEELS {experiencedTemperature(m)}°C</span></button>
       <Gauge label="Crew safety" value={m.safety} kind="health"/><Gauge label="Suit oxygen" value={m.oxygen} kind="air"/><Gauge label="Sustenance" value={m.sustenance} kind="food"/><Gauge label="Sleep" value={m.sleep} kind="sleep"/><Gauge label="Battery" value={m.power} max={m.capacity} kind="energy"/>
       {(f.active||(f.until>0&&f.until<=60)||f.night)&&<div className="survival-alert">{f.active?f.kind.toUpperCase()+' EVENT':f.night?'FREEZING NIGHT':f.kind.toUpperCase()+' IN '+Math.ceil(f.until)+'s'}</div>}
-      {m.shelter==='greenhouse'&&<div className="survival-alert greenhouse-status">FOOD {m.greenhouseFood}/3 · {m.greenhouseFood>=3?'STORAGE FULL':m.circuits.greenhouse?'NEXT MEAL '+Math.max(0,Math.ceil(45-m.greenhouseTimer))+'s':'PRODUCTION PAUSED'}</div>}
+      {m.shelter==='greenhouse'&&<div className="survival-alert greenhouse-status">FOOD {m.greenhouseFood}/3 · {m.greenhouseFood>=3?'STORAGE FULL':m.circuits.greenhouse&&m.power>.01?'NEXT MEAL '+Math.max(0,Math.ceil(greenhouseFoodInterval-m.greenhouseTimer))+'s':'PRODUCTION PAUSED'}</div>}
+      {m.scanning&&<div className="survival-alert scanner-status">SCANNER · {Math.max(0,Math.ceil(m.scanning.remaining/TIME_SCALE))}s REMAINING</div>}
     </section>
     {m.started&&(m.oxygen<=25||f.active||(f.until>0&&f.until<=60)||m.inventory.length>=4||Math.floor(m.elapsed)%24<7)&&<aside className="rex-dialog" aria-label="Rex companion"><span className="rex-face">RΞX</span><div><b>REX <small>EXPEDITION COMPANION</small></b><p role={m.oxygen<=25?'status':undefined}>{rexTip(m)}</p></div></aside>}
     <nav className="survival-belt" aria-label="Quick inventory and equipment">

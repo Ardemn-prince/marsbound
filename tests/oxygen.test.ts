@@ -21,7 +21,7 @@ test('empty oxygen doubles damage without changing other life-support penalties 
       near(tickSurvival({...base,shelter,oxygen,sustenance,heat},1).safety,100-damage*TIME_SCALE);
     }
   }
-  near(tickSurvival({...base,oxygen:0,sleep:0,sleepDeprivation:31},1).safety,100-.68*TIME_SCALE);
+  near(tickSurvival({...base,oxygen:0,sleep:0,sleepDeprivation:46},1).safety,100-.7*TIME_SCALE);
   near(tickSurvival({...base,shelter:'command',safety:50},1).safety,50+.06*TIME_SCALE);
 });
 

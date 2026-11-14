@@ -23,7 +23,7 @@ export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nov
   c.fillStyle='#eee4bf';c.fillRect(x-5,y+1,11,5);c.fillStyle='#6cacb1';c.fillRect(x-3,y+2,7,2);
 }
 export function drawScene(r:Renderer,m:Mission){r.camera.follow(m.player,WORLD.width,WORLD.height);r.begin();const c=r.ctx;
-  drawTerrain(c,{x:r.camera.x,y:r.camera.y,w:r.camera.width,h:r.camera.height});drawWorldContent(c);drawBase(c,m.shelter);
+  drawTerrain(c,{x:r.camera.x,y:r.camera.y,w:r.camera.width,h:r.camera.height});drawWorldContent(c);drawBase(c,m.shelter,m.power,m.circuits);
   if(m.beacon){c.fillStyle='#cdd7b7';c.fillRect(m.beacon.x-2,m.beacon.y-30,4,30);c.fillStyle='#a7e2c8';c.fillRect(m.beacon.x-12,m.beacon.y-32,24,5);}
   drawSamples(c,m);drawRover(c,m);drawRex(c,m);if(!m.riding)drawAstronaut(c,m.player,m.character);r.end();drawAtmosphere(c,m,r.camera);
 }
