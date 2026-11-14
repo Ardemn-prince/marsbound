@@ -2,7 +2,7 @@
 import {useEffect,useState,type CSSProperties} from 'react';
 import type {Mission} from '@/game/model';
 import {rexTip} from '@/game/rex';
-import {forecast,SOL_SECONDS,TIME_SCALE} from '@/game/forecast';
+import {forecast,SOL_SECONDS,TIME_SCALE,experiencedTemperature} from '@/game/forecast';
 import {SCIENCE,sampleById} from '@/game/research';
 import {interactionHint} from '@/game/hints';
 import {useMission} from '@/game/store';
@@ -18,7 +18,7 @@ export default function ExpeditionHud({m}:{m:Mission}){const f=forecast(m.elapse
     <button className="survival-menu" onClick={store.togglePause} aria-label="Pause and mission menu" title="Pause · Esc">▾</button>
     <section className="survival-status" aria-label="Mission time and life support">
       <div className="day-plaque"><small>SOL</small><strong>{Math.min(14,f.sol)}</strong><span>/ 14</span></div>
-      <button className={'weather-dial '+(f.night?'is-night':'')} onClick={()=>store.openPanel('power')} aria-label={'Weather: '+(f.active?f.kind:f.night?'freezing night':'daylight')+'. Open power management.'} title="Day / night cycle · Power management"><div className="dial-face"><span className="dial-sun">☀</span><span className="dial-moon">☾</span><i className="dial-hand" style={{transform:'rotate('+(f.phase/SOL_SECONDS*360-90)+'deg)'}}/><b className="dial-pin"/></div><span className="dial-caption">{f.active?f.kind.toUpperCase():f.night?'−75°C':'−23°C'}</span></button>
+      <button className={'weather-dial '+(f.night?'is-night':'')} onClick={()=>store.openPanel('power')} aria-label={'Feels like '+experiencedTemperature(m)+'°C. Open power management.'} title="Feels like temperature · Open power management"><div className="dial-face"><span className="dial-sun">☀</span><span className="dial-moon">☾</span><i className="dial-hand" style={{transform:'rotate('+(f.phase/SOL_SECONDS*360-90)+'deg)'}}/><b className="dial-pin"/></div><span className="dial-caption">FEELS {experiencedTemperature(m)}°C</span></button>
       <Gauge label="Crew safety" value={m.safety} kind="health"/><Gauge label="Suit oxygen" value={m.oxygen} kind="air"/><Gauge label="Sustenance" value={m.sustenance} kind="food"/><Gauge label="Sleep" value={m.sleep} kind="sleep"/><Gauge label="Battery" value={m.power} max={m.capacity} kind="energy"/>
       {(f.active||(f.until>0&&f.until<=60)||f.night)&&<div className="survival-alert">{f.active?f.kind.toUpperCase()+' EVENT':f.night?'FREEZING NIGHT':f.kind.toUpperCase()+' IN '+Math.ceil(f.until)+'s'}</div>}
       {m.shelter==='greenhouse'&&<div className="survival-alert greenhouse-status">FOOD {m.greenhouseFood}/3 · {m.greenhouseFood>=3?'STORAGE FULL':m.circuits.greenhouse&&m.power>.01?'NEXT MEAL '+Math.max(0,Math.ceil(greenhouseFoodInterval-m.greenhouseTimer))+'s':'PRODUCTION PAUSED'}</div>}
