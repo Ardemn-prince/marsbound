@@ -40,6 +40,8 @@ Command now has quieter floor seams, side-wall trim, a top-left bed and a combin
 
 ## Idle, river and Command details
 
+The AI-generated sleeping Command scene sheet is retained as `sleeping-command-v1.png` for future use. The live renderer keeps the original bed animation because the supplied full-room frames overlap the Command interior when layered into the world.
+
 `idle-room-river-v1.png` was made with built-in imagegen from the user's standing astronaut / riverbed sheet and Command equipment reference. Standing astronaut and sitting Rex now use dedicated idle art, not a walk frame. The eroded river art is sampled in strips along the existing cleared channel. Beige placeholder doorstep bars have been removed. Wall monitor, radiator and logistics locker artwork decorate the existing Command room; no new gameplay systems were added.
 
 Generation prompt: Create production MarsBound pixel sprites adapted closely from supplied references. Transparent background, NO text or labels. Exactly 3 equal columns and 2 equal rows, six isolated cells with padding. Top row: reference astronaut STANDING STILL facing right, both boots planted evenly, arms at sides, cream suit teal opaque visor, not walking; reference Rex robot dog sitting calmly facing right; STRAIGHT VERTICAL dry riverbed segment, sandy middle and irregular dark eroded rocky banks, running top to bottom of this cell, constant width, top and bottom match for vertical tiling, no dashed road markings or stones in the walkable channel. Bottom row: wall-mounted wide weather/radar monitor without text, teal map screen; wall-mounted orange radiator heater from reference; stacked logistics cases and slim suit locker from reference. Detailed crisp outlined pixel art, muted steel and cream, consistent with source. No new characters, no scenery background. Astronaut proportions like reference, two feet at same baseline and relaxed upright standing pose. Each object wholly contained in its own cell, no crossing boundaries.
@@ -47,6 +49,8 @@ Generation prompt: Create production MarsBound pixel sprites adapted closely fro
 Follow-up edit prompt: Remove ALL background and glows from this exact six-sprite atlas. Preserve all six sprites and their positions exactly. Real transparent alpha everywhere outside silhouettes, including between items. No shadow halos, no vignette, no gradient backdrop, no black backdrop. Keep astronaut, dog, river segment, monitor, heater, locker unchanged. This must composite cleanly onto game terrain.
 
 ## Cadets, Rex portraits and formations
+
+The supplied rift-valley landmark is integrated as `rift-valley-v1.png`. Its baked checkerboard preview background was converted to true transparency; the asset replaces the procedural `riftValley` exhibit while retaining the existing walkable collision and field-note interaction.
 
 New assets: `cadets-v1.png` (4 columns x 2 rows), `rex-portraits-v1.png` (3 x 2), `formations-v1.png` (3 x 2). Generated with built-in imagegen using the three user-provided reference sheets. New-game choices are Girl/Nova and Boy/Leo. Legacy Aya and Kai save IDs remain accepted and map to girl and boy art. Helmetless rendering is restricted to existing habitat interiors; outdoor geological landmarks do not remove helmets. Portrait expressions follow mission state, with danger taking priority. Existing landmark anchors are retained. River centerline is continuous and alternating source repeats are reflected to join matching edges.
 
