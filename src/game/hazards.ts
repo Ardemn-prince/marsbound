@@ -1,8 +1,7 @@
 import { clamp } from '@/engine/math';
 import type { Mission } from './model';
 import { forecast,SOL_SECONDS,TIME_SCALE } from './forecast';
-import { stations } from './base';
-const commandReturn=stations.find(s=>s.id==='command')!;
+const commandReturn={x:2370,y:1705};
 export function tickHazards(m:Mission,dt:number):Mission{const f=forecast(m.elapsed),timeDt=dt*TIME_SCALE;let next={...m};const outside=!m.shelter;const exposure=(f.night&&outside?.18:0)+(f.active&&outside?(f.kind==='radiation'?.5:.08):0);next.safety=clamp(m.safety-(exposure*(m.upgrades.includes('suit')?.5:1)+(f.active&&f.kind==='radiation'&&m.shelter&&!(m.shelter==='command'&&m.loadout.includes('shield'))?.06:0))*timeDt,0,100);
   const eventId=`${f.sol}-${f.kind}`;
   if(f.active&&((f.kind==='dust'&&m.beacon)||(f.kind==='radiation'&&m.shelter==='command'))&&!m.measuredEvents.includes(eventId))next.measuredEvents=[...m.measuredEvents,eventId];

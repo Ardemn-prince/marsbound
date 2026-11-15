@@ -32,3 +32,11 @@ export function drawEnvironmentSprite(c:CanvasRenderingContext2D,name:keyof type
   c.save();c.imageSmoothingEnabled=false;if(!online)c.filter='brightness(0.45)';
   c.drawImage(environmentAtlas,sx,sy,sw,sh,Math.round(x),Math.round(y),w,h);c.restore();return true;
 }
+
+let groundAtlas:HTMLImageElement|undefined;
+export function drawGroundTile(c:CanvasRenderingContext2D,column:number,x:number,y:number,size:number){
+ if(typeof Image==='undefined')return;
+ if(!groundAtlas){groundAtlas=new Image();groundAtlas.src='/sprites/mars-ground-v1.png';}
+ if(!groundAtlas.complete||!groundAtlas.naturalWidth)return;
+ const width=groundAtlas.naturalWidth/3;c.drawImage(groundAtlas,column*width,0,width,groundAtlas.naturalHeight,x,y,size,size);
+}
