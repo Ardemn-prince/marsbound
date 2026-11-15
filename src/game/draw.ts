@@ -41,6 +41,5 @@ export function drawScene(r:Renderer,m:Mission){r.camera.follow(m.player,WORLD.w
 
 function drawSleeping(c:CanvasRenderingContext2D,m:Mission){
  c.save();c.translate(bed.x-5,bed.y-24);c.rotate(-Math.PI/2);drawAstronaut(c,{...m.player,x:0,y:0,moving:false,running:false,action:0},m.character,true);c.restore();
- const breath=Math.sin(m.elapsed*2)*1.2;c.fillStyle='#b0ac91';c.fillRect(bed.x-22,bed.y-35+breath,40,22);c.fillStyle='#d2ccb1';c.fillRect(bed.x-22,bed.y-35+breath,40,3);c.fillStyle='#858a79';for(let i=0;i<4;i++)c.fillRect(bed.x-17+i*8,bed.y-29+breath+i%2*3,3,12);c.fillStyle='#e1d7ba';c.fillRect(bed.x-22,bed.y-15+breath,40,2);
  c.save();c.fillStyle='#d9f4ed';c.textAlign='center';for(let i=0;i<3;i++){const t=(m.elapsed*.45+i/3)%1;c.globalAlpha=1-t;c.font='bold '+(10+i*2)+'px monospace';c.fillText('z',bed.x+25+t*18,bed.y-32-t*35);}c.restore();
 }

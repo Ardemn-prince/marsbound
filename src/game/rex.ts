@@ -3,7 +3,7 @@ import {facilities,facilityWalls,shelterAt} from './base';
 import {contains} from '@/engine/math';
 import {drawSprite,walkFrame,drawDetailSprite} from './sprites';
 import { wrappedDelta,wrappedDistance,wrapPosition } from '@/engine/math';
-import { WORLD } from './world';
+import { WORLD,riftGapObstacles } from './world';
 import type { Mission } from './model';
 import {samples,collect,SCIENCE} from './research';
 import {nearest} from './player';
@@ -19,7 +19,7 @@ export function tickRex(m:Mission,dt:number):Mission{
   if(wrappedDistance(last,m.player)>16)rex.trail.push({x:m.player.x,y:m.player.y});
   if(rex.trail.length>240)rex.trail.shift();
   const entering=!!m.shelter&&shelterAt(rex)!==m.shelter;
-  const gap=wrappedDistance(rex,m.player),stopGap=entering?24:m.riding?100:72,startGap=entering?30:m.riding?140:110;
+  const gap=wrappedDistance(rex,m.player),stopGap=entering?24:m.shelter?112:m.riding?100:72,startGap=entering?30:m.shelter?150:m.riding?140:110;
   if(gap<=stopGap){rex.following=false;rex.followDelay=0;}
   else if(!rex.following){
     rex.followDelay=gap>=startGap?(rex.followDelay??0)+dt:0;
@@ -32,12 +32,20 @@ export function tickRex(m:Mission,dt:number):Mission{
       if(d<.01){rex.trail.shift();continue;}
       const step=Math.min(d,budget,4);
       const candidate=wrapPosition({x:rex.x+wrappedDelta(rex.x,target.x,WORLD.width)/d*step,y:rex.y+wrappedDelta(rex.y,target.y,WORLD.height)/d*step},WORLD.width,WORLD.height);
-      if(facilityWalls.some(w=>contains(w,candidate,6))){rex.trail=[];rex.following=false;break;}
+      if(facilityWalls.some(w=>contains(w,candidate,6))||riftGapObstacles.some(w=>contains(w,candidate,6))){rex.trail=[];rex.following=false;break;}
       rex.x+=wrappedDelta(rex.x,target.x,WORLD.width)/d*step;
       rex.y+=wrappedDelta(rex.y,target.y,WORLD.height)/d*step;
       Object.assign(rex,wrapPosition(rex,WORLD.width,WORLD.height));
       rex.moving=true;budget-=step;
       if(step===d)rex.trail.shift();
+    }
+  }
+  if(m.shelter&&shelterAt(rex)===m.shelter&&wrappedDistance(rex,m.player)<112){
+    const angle=Math.atan2(rex.y-m.player.y,rex.x-m.player.x);
+    const offsets=[0,.5,-.5,1,-1,1.5,-1.5,Math.PI,-Math.PI];
+    for(const offset of offsets){
+      const candidate={x:m.player.x+Math.cos(angle+offset)*112,y:m.player.y+Math.sin(angle+offset)*112};
+      if(shelterAt(candidate)===m.shelter&&!facilityWalls.some(w=>contains(w,candidate,6))){rex.x=candidate.x;rex.y=candidate.y;rex.following=false;rex.moving=false;break;}
     }
   }
   const pickupCooldown=Math.max(0,m.rexPickupCooldown-dt);let next:Mission={...m,rex,rexPickupCooldown:pickupCooldown};const sample=nearest(rex,samples.filter(s=>!m.collected.includes(s.id)),30);if(sample&&!m.shelter&&m.inventory.length===3&&pickupCooldown<=0&&wrappedDistance(m.player,sample)<80){next=collect(next,sample,4);next.rexPickupCooldown=REX_ROCK_PICKUP_COOLDOWN;next.message='Rex: I picked up '+SCIENCE[sample.kind].name+' in his cargo slot. Let’s take it to the lab!';}return next;}

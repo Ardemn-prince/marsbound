@@ -1,4 +1,4 @@
-import {drawGroundTile,drawEnvironmentSprite,drawRiverStrip,drawAtlasCell} from './sprites';
+import {drawGroundTile,drawEnvironmentSprite,drawRiverStrip,drawAtlasCell,drawSingleSprite} from './sprites';
 import { wrappedDistance,type Rect,type Vec2 } from '@/engine/math';
 export const WORLD={width:4800,height:3200,tile:32};
 export const BASE_CENTER={x:2400,y:1600};
@@ -31,6 +31,14 @@ export const structures:WorldStructure[]=[
 const baseBounds={x:1950,y:1390,w:1300,h:420};
 export const originalObstacles:Rect[]=Array.from({length:210},(_,i)=>({x:80+noise(i,3)*(WORLD.width-160),y:70+noise(i,9)*(WORLD.height-140),w:25+noise(i,4)*40,h:18+noise(i,7)*28})).filter(r=>!(r.x<baseBounds.x+baseBounds.w&&r.x+r.w>baseBounds.x&&r.y<baseBounds.y+baseBounds.h&&r.y+r.h>baseBounds.y)&&!structures.some(s=>Math.abs(s.x-r.x)<100&&Math.abs(s.y-r.y)<100)&&wrappedDistance({x:r.x+r.w/2,y:r.y+r.h/2},BASE_CENTER)>480);
 export const obstacles=originalObstacles.map(o=>({...o,...clearRockPosition(o,o.w+15)}));
+/** The rift sprite's central chasm is not walkable; its plateaus remain open. */
+export const riftGapObstacles:Rect[]=[
+ {x:3905,y:2300,w:125,h:95},
+ {x:3860,y:2375,w:125,h:105},
+ {x:3815,y:2460,w:120,h:105},
+ {x:3770,y:2545,w:115,h:100},
+ {x:3735,y:2625,w:100,h:75},
+];
 const mix=(from:string,to:string,amount:number)=>{const a=from.match(/\w\w/g)!.map(v=>parseInt(v,16)),b=to.match(/\w\w/g)!.map(v=>parseInt(v,16));return `#${a.map((v,i)=>Math.round(v+(b[i]-v)*amount).toString(16).padStart(2,'0')).join('')}`;};
 const smooth=(n:number)=>n*n*(3-2*n);
 const terrainColor=(radius:number)=>{const [center,delta,outer]=REGIONS.map(r=>r.color);const deltaBlend=smooth(Math.max(0,Math.min(1,(radius-360)/360)));const outerBlend=smooth(Math.max(0,Math.min(1,(radius-900)/420)));return mix(mix(center,delta,deltaBlend),outer,outerBlend);};
@@ -58,8 +66,7 @@ export function drawWorldContent(c:CanvasRenderingContext2D,view?:Rect){for(cons
  c.save();
  // Preserve the continuous riverbed even where a geological exhibit crosses it.
  c.beginPath();c.rect(0,0,WORLD.width,WORLD.height);for(let yy=Math.max(0,Math.floor((s.y-s.h/2)/4)*4);yy<Math.min(WORLD.height,s.y+s.h/2);yy+=4)c.rect(drybedX(yy)-4,yy,76,4);c.clip('evenodd');
- if(s.kind==='rift'){
-  for(let layer=0;layer<5;layer++){c.fillStyle=['#b58464','#966247','#744b39','#50372e','#2d2525'][layer];c.beginPath();for(let i=0;i<=24;i++){const yy=y-s.h/2+i*s.h/24,xx=x+Math.sin(i*.35)*75+Math.sin(i*1.7)*12;const half=100-layer*18;if(i===0)c.moveTo(xx-half,yy);else c.lineTo(xx-half,yy);}for(let i=24;i>=0;i--){const yy=y-s.h/2+i*s.h/24,xx=x+Math.sin(i*.35)*75+Math.sin(i*1.7)*12;c.lineTo(xx+100-layer*18,yy);}c.closePath();c.fill();}
- }else{const cell=({crater:0,outcrop:1,lavaTube:2,dune:3,channel:4} as Record<string,number>)[s.kind];drawAtlasCell(c,'formations-v1.png',3,2,cell%3,Math.floor(cell/3),x-s.w/2,y-s.h/2,s.w,s.h);}
+ if(s.id==='riftValley'){drawSingleSprite(c,'rift-valley-v1.png',x-s.w/2,y-s.h/2,s.w,s.h);}
+ else{const cell=({crater:0,outcrop:1,lavaTube:2,dune:3,channel:4} as Record<string,number>)[s.kind];drawAtlasCell(c,'formations-v1.png',3,2,cell%3,Math.floor(cell/3),x-s.w/2,y-s.h/2,s.w,s.h);}
  c.restore();
 }}

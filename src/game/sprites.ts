@@ -65,3 +65,9 @@ export function drawAtlasCell(c:CanvasRenderingContext2D,file:string,cols:number
  c.save();c.translate(Math.round(x),Math.round(y));if(flip){c.translate(w,0);c.scale(-1,1);}
  c.drawImage(img,col*img.naturalWidth/cols,row*img.naturalHeight/rows,img.naturalWidth/cols,img.naturalHeight/rows,0,0,w,h);c.restore();return true;
 }
+export function drawSingleSprite(c:CanvasRenderingContext2D,file:string,x:number,y:number,w:number,h:number){
+ if(typeof Image==='undefined')return false;
+ let img=extraAtlases.get(file);if(!img){img=new Image();img.src='/sprites/'+file;extraAtlases.set(file,img);}
+ if(!img.complete||!img.naturalWidth)return false;
+ c.save();c.imageSmoothingEnabled=false;c.drawImage(img,Math.round(x),Math.round(y),w,h);c.restore();return true;
+}
