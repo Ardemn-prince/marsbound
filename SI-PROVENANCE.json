@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "project": "MarsBound",
+  "disclosure": {
+    "tools": [
+      {
+        "name": "OpenAI Codex",
+        "role": "Assisted with code implementation, debugging, and testing.",
+        "verified_code_areas": [
+          "src/components",
+          "src/game",
+          "src/app/globals.css",
+          "tests"
+        ]
+      },
+      {
+        "name": "GitHub Copilot",
+        "role": "Assisted with code implementation, debugging, and testing.",
+        "verified_code_areas": [
+          "src/components",
+          "src/game",
+          "src/app/globals.css",
+          "tests"
+        ]
+      }
+    ],
+    "team_role": "The team directed the gameplay, art selection, audio choices, disclosure scope, and acceptance criteria, and reviewed the resulting work."
+  },
+  "artwork": [
+    {
+      "asset": "public/sprites/storyboard-v1.png",
+      "use": "Selected intro illustrations",
+      "watermarked_intro_frame_ids": [
+        "briefing",
+        "descent",
+        "ground_zero"
+      ],
+      "origin_note": "This entry records the selected artwork disclosure only and does not infer or assert additional asset origin or licensing information."
+    }
+  ]
+}
