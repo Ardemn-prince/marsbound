@@ -1,0 +1,25 @@
+* [33m8885519[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcodex/remove-base-strips[m[33m)[m wip: cadet portraits and environment polish
+* [33m336f8a9[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat(world): organize interiors and improve terrain and Rex movement
+* [33m7a5c0fd[m feat(art): integrate facility and environment sprites
+* [33m70ebc87[m feat(tools): distinguish drill scanner and weather beacon
+* [33mf696d3c[m feat(art): add Mars sprite atlas and walking animations
+* [33ma07cfb3[m fix(world): separate storage dome from command
+* [33m393cd8e[m feat(game): smooth Rex following and add craftable rarity scanner
+* [33m283a6ed[m fix(world): remove brown and yellow base strips
+*   [33me7199a6[m Merge pull request #3 from Ardemn-prince/main
+[32m|[m[33m\[m  
+[32m|[m * [33m975626c[m Moved the dark base strip from y=1850 to y=1405.Extended its width from 900 to 1250 so it spans the building row.The light highlight strip is still at y=1858 with width 900, so it is currently detached from the moved dark strip.
+[32m|[m * [33md05e562[m Increased the temperature adjustment change.
+[32m|[m[32m/[m  
+*   [33m9f75178[m Merge pull request #2 from Ardemn-prince/main
+[34m|[m[35m\[m  
+[34m|[m * [33m4bb75ed[m Added a 120 simulation-second Rex rock-pickup cooldown, about two real minutes.Prevented the astronaut from manually collecting rocks when Sleep is below 25.Added a clear 'too tired to collect samples' message.Kept Rex’s independent pickup ability available while the astronaut is tired.Fixed the main-menu Continue save picker: it now stays inside the viewport, scrolls when needed, uses compact save rows, and keeps the Back to menu button visible.
+[34m|[m * [33m10623f4[m Added the following: Added outside temperature rules: −23°C during the day and −75°C at night.Added a separate felt-temperature value for the astronaut.Changed the main HUD to show FEELS temperature.Added both OUTSIDE and FEELS LIKE temperatures to the power/mission panel.Made temperature change gradually instead of jumping instantly when entering or leaving a heated building.Heated shelters warm the astronaut over time; leaving shelter or losing heater power cools them over time.Added Rex explanations for radiation protection: outdoors, partially protected habitats, and fully shielded Command.
+[34m|[m * [33m8b24da9[m Added the following: Darkened building for power loss. Lower and luck-based rock research reward. Longer scan times and scanner countdown. Greenhouse food production from 45s to 90s. Greenhouse don't work if power runs out. No sleep deals more damage.
+[34m|[m * [33md3ac8d1[m Added rarity for rock research. Decreased research points generation.
+[34m|[m[34m/[m  
+* [33m6ab350e[m Increase empty-oxygen damage and add persistent warnings
+*   [33mece0eab[m Merge pull request #1 from Ardemn-prince/main
+[36m|[m[1;31m\[m  
+[36m|[m * [33m4b3bd02[m feat(game): rebalance survival and adventure kits
+[36m|[m * [33ma486473[m feat(game): add powered greenhouse survival loop
