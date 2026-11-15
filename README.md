@@ -17,3 +17,10 @@ Hold **Shift + WASD** to run. Approach an outlined object and press **E** to use
 Frost, dust and radiation effects become less intense inside a facility. This is a visual shelter cue; radiation protection still depends on the existing shielding and survival rules. Solar conduits show facility power/circuit status. Adventure cards retain their existing equipment and credit costs; expand “What’s in my kit?” to inspect them.
 
 The landforms are simplified, walkable educational exhibits, not a geographically accurate placement of Mars landmarks. Their field notes link to NASA sources. Sprite generation prompts and provenance are in `public/sprites/README.md`.
+
+## Cinematics, hazard tasks and sound
+The three intro frames and three endings use `public/sprites/storyboard-v1.png`. Subtitle text and named VO/SFX triggers live in `src/game/cinematics.ts`. Sound is opt-in. Spoken narration is disabled pending custom recordings; subtitles and future VO trigger IDs remain. Effects are synthesized placeholders, not recorded performances. The sound trigger layer can be replaced with licensed recordings later.
+
+Dust: deploy K at the marked beacon site for telemetry and +20 RP. Freezing night: E at the powered external thermal relay for heater priority and +15 RP. Radiation: E at the inside Command bulkhead switch within 60 seconds for +20 RP and protection while inside Command. Rewards are once per event and persist in saves. The game uses a deterministic simulated schedule; the journal can fetch NASA DONKI SEP records using its public DEMO_KEY, with timeout/error fallback. These observational records do not predict Mars exposure or change the playable simulation schedule. Source: https://api.nasa.gov/#DONKI
+
+New event/cinematic state and handlers use snake_case. Existing public Mission fields retain their names for compatibility. The field sample population is halved deterministically; the full sample registry stays available to load older inventories and lab scans.

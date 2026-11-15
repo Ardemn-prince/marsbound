@@ -1,0 +1,6 @@
+import type {Mission} from './model';
+import {drawWeatherBeacon} from './sprites';
+import {thermal_relay,bulkhead_switch,hazard_task_position} from './hazard-events';
+export function draw_hazard_objects(c:CanvasRenderingContext2D,m:Mission){c.save();const relay=thermal_relay;c.fillStyle='#273c40';c.fillRect(relay.x-12,relay.y-20,24,30);c.strokeStyle='#b9b99b';c.strokeRect(relay.x-12,relay.y-20,24,30);c.fillStyle=m.hazard_event?.heater_priority?'#a8d58d':'#df9e64';c.fillRect(relay.x-7,relay.y-14,14,9);c.fillStyle='#566a69';c.fillRect(relay.x-3,relay.y-2,6,9);if(m.shelter==='command'){const p=bulkhead_switch;c.fillStyle='#273c40';c.fillRect(p.x-10,p.y-13,20,26);c.strokeStyle='#b9b99b';c.strokeRect(p.x-10,p.y-13,20,26);c.fillStyle=m.hazard_event?.airlock_sealed?'#93cf9b':'#e0a369';c.fillRect(p.x-5,p.y-7,10,13);}
+ const event=m.hazard_event;if(event&&!event.task_complete&&m.elapsed<event.ends_at){const p=hazard_task_position(event);c.strokeStyle='#f2d083';c.lineWidth=2;c.setLineDash([5,4]);c.strokeRect(p.x-25,p.y-25,50,50);c.setLineDash([]);c.fillStyle='#f2d083';c.font='bold 9px monospace';c.textAlign='center';c.fillText(event.event_type==='dust'?'BEACON SITE':event.event_type==='freezing'?'THERMAL RELAY':'SEAL AIRLOCK',p.x,p.y-33);if(event.event_type==='dust'){c.globalAlpha=.4;drawWeatherBeacon(c,p.x,p.y);}}
+ c.restore();}

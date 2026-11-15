@@ -1,0 +1,18 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {launch} from '../src/game/progression';
+import {update_hazard_tick,complete_hazard_task,weather_poi,thermal_relay,bulkhead_switch,trigger_ending} from '../src/game/hazard-events';
+import {SOL_SECONDS} from '../src/game/forecast';
+import {powerFlow} from '../src/game/survival';
+import {tickHazards} from '../src/game/hazards';
+import {samples,sample_registry} from '../src/game/research';
+import {encodeSave,decodeSave} from '../src/game/save';
+import {advance_cinematic,initialize_cinematic,intro_frames,ending_frames} from '../src/game/cinematics';
+const event_mission=(phase:number,sol=1)=>update_hazard_tick({...launch([]),elapsed:(sol-1)*SOL_SECONDS+phase/360*SOL_SECONDS},1);
+test('dust beacon requires marked location and rewards once, including after reload',()=>{let m=event_mission(160);assert.equal(complete_hazard_task(m,'beacon').points,m.points);m={...m,player:{...m.player,...weather_poi}};m=complete_hazard_task(m,'beacon');assert.equal(m.points,20);assert.ok(m.hazard_event?.telemetry_online);assert.equal(complete_hazard_task(decodeSave(encodeSave(m)),'beacon').points,20);});
+test('heater priority needs powered outside relay and reduces night battery drain',()=>{let m=event_mission(260);m={...m,player:{...m.player,...thermal_relay}};assert.equal(powerFlow(m).solar,0);assert.equal(complete_hazard_task({...m,power:0},'relay').points,0);const next=complete_hazard_task(m,'relay');assert.equal(next.points,15);assert.ok(powerFlow(next).load<powerFlow(m).load);});
+test('radiation grants 60 seconds before damage and command sealing protects indoors only',()=>{let m=event_mission(150,8);assert.equal(tickHazards(m,1).safety,m.safety);m={...m,player:{...m.player,...bulkhead_switch},shelter:'command'};const sealed=complete_hazard_task(m,'bulkhead');assert.equal(sealed.points,20);assert.equal(tickHazards({...sealed,elapsed:sealed.elapsed+61},1).safety,sealed.safety);assert.ok(tickHazards({...sealed,shelter:null,elapsed:sealed.elapsed+61},1).safety<sealed.safety);assert.equal(complete_hazard_task({...m,elapsed:m.elapsed+61},'bulkhead').points,0);});
+test('endings have exact boundary conditions and zero safety cannot be rescued',()=>{const m=launch([]);assert.equal(trigger_ending({...m,elapsed:14*SOL_SECONDS,points:200}),'success');assert.equal(trigger_ending({...m,elapsed:14*SOL_SECONDS,points:199}),'partial');assert.equal(tickHazards({...m,safety:0},1).outcome,'evacuated');});
+test('fades ramp rather than jumping and expire cleanly',()=>{let m=event_mission(160);assert.ok(m.hazard_event!.visual_strength<1);m=update_hazard_tick({...m,elapsed:220/360*SOL_SECONDS},8);assert.equal(m.hazard_event,null);});
+test('reduced field keeps removed sample IDs valid in old saves',()=>{assert.ok(samples.length<=Math.ceil(sample_registry.length*.55));const old=sample_registry.find(s=>!samples.some(x=>x.id===s.id))!;const m={...launch([]),inventory:[old.id],collected:[old.id]};assert.deepEqual(decodeSave(encodeSave(m)).inventory,[old.id]);});
+test('cinematic sequence terminates and every ending includes voice and sound triggers',()=>{let state=initialize_cinematic();for(let i=0;i<3;i++)state=advance_cinematic(state);assert.ok(state.is_complete);for(const f of [...intro_frames,...Object.values(ending_frames)]){assert.ok(f.subtitle.length>50);assert.ok(f.vo_trigger.startsWith('vo_'));assert.ok(f.sound_trigger);}});

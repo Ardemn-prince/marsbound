@@ -1,6 +1,7 @@
+import {scheduled_hazard} from './hazard-events';
 import {CHARACTERS} from './characters';
 import { newMission,type Mission } from './model';
-import { samples,SCIENCE } from './research';
+import { sample_registry,SCIENCE } from './research';
 import { OUTFIT,UPGRADES } from './progression';
 import { shelterAt } from './base';
 import { regionAt,WORLD } from './world';
@@ -20,10 +21,11 @@ export function decodeSave(raw:string):Mission{if(raw.length>250000)throw new Er
   for(const key of ['oxygen','sustenance','heat','food','water','safety','sleep','roverCharge'])if(!finite(m[key])||m[key]<0||m[key]>100)throw new Error('Invalid resource range.');if(!finite(m.feltTemperature)||m.feltTemperature<-100||m.feltTemperature>60)throw new Error('Invalid temperature range.');
   if(!finite(m.sleepDeprivation)||m.sleepDeprivation<0||m.sleepDeprivation>100000||!finite(m.greenhouseFood)||m.greenhouseFood<0||m.greenhouseFood>3||!finite(m.greenhouseTimer)||m.greenhouseTimer<0||m.greenhouseTimer>90||!finite(m.rexPickupCooldown)||m.rexPickupCooldown<0||m.rexPickupCooldown>120)throw new Error('Invalid survival state.');
   if(!finite(m.panelHealth)||m.panelHealth<.2||m.panelHealth>1||!finite(m.passiveScan)||m.passiveScan<0||m.passiveScan>=90||(m.supplyArrival!==null&&(!finite(m.supplyArrival)||m.supplyArrival<0)))throw new Error('Invalid equipment state.');
-  const typed=m as unknown as Mission;const ids=new Set(samples.map(s=>s.id));if([...typed.inventory,...typed.collected].some(id=>!ids.has(id))||new Set(typed.collected).size!==typed.collected.length||new Set(typed.inventory).size!==typed.inventory.length||typed.inventory.some(id=>!typed.collected.includes(id))||typed.inventory.length>4)throw new Error('Invalid sample records.');
+  const typed=m as unknown as Mission;const ids=new Set(sample_registry.map(s=>s.id));if([...typed.inventory,...typed.collected].some(id=>!ids.has(id))||new Set(typed.collected).size!==typed.collected.length||new Set(typed.inventory).size!==typed.inventory.length||typed.inventory.some(id=>!typed.collected.includes(id))||typed.inventory.length>4)throw new Error('Invalid sample records.');
   if(typed.discoveries.some(id=>!Object.hasOwn(SCIENCE,id))||typed.loadout.some(id=>!OUTFIT.some(i=>i.id===id))||typed.upgrades.some(id=>!UPGRADES.some(i=>i.id===id))||typed.explored.some(id=>!['seitah','delta','margin'].includes(id)))throw new Error('Invalid discovery or equipment.');
   if(typed.scanning!==null&&(!record(typed.scanning)||!ids.has(typed.scanning.id)||!finite(typed.scanning.remaining)||typed.scanning.remaining<=0||typed.scanning.remaining>60||!typed.collected.includes(typed.scanning.id)||typed.inventory.includes(typed.scanning.id)))throw new Error('Invalid scan.');
   if(![null,'success','partial','evacuated'].includes(typed.outcome)||!typed.started)throw new Error('Invalid mission status.');
+  if(typed.hazard_event){const e=typed.hazard_event,scheduled=scheduled_hazard(typed.elapsed);if(!scheduled||e.event_id!==scheduled.event_id||e.event_type!==scheduled.event_type||!['visual_strength','optical_depth','started_at','ends_at','countdown_ends_at'].every(k=>Number.isFinite(e[k as keyof typeof e]))||!['task_complete','telemetry_online','heater_priority','airlock_sealed'].every(k=>typeof e[k as keyof typeof e]==='boolean'))typed.hazard_event=null;else typed.hazard_event={...e,...scheduled,countdown_ends_at:scheduled.started_at+60,visual_strength:Math.max(0,Math.min(1,e.visual_strength)),data_source:'simulation'};}
   return {...typed,rex:{...typed.rex,moving:false,following:false,followDelay:0},paused:true,panel:null,shelter:shelterAt(typed.player),region:regionAt(typed.player).id,player:{...typed.player,moving:false},message:'Mission restored. Resume when you are ready.'};
 }
 export function encodeSave(m:Mission){if(!m.started)throw new Error('Launch a mission before saving.');return JSON.stringify({version:1,savedAt:new Date().toISOString(),mission:m});}

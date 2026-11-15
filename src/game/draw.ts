@@ -1,3 +1,4 @@
+import {draw_hazard_objects} from './hazard-render';
 import {drawSprite,walkFrame,drawWeatherBeacon,drawDetailSprite,drawAtlasCell} from './sprites';
 import {characterById,characterGender} from './characters';
 import type { Renderer } from '@/engine/renderer';
@@ -35,7 +36,7 @@ export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nov
 export function drawScene(r:Renderer,m:Mission){r.camera.follow(m.player,WORLD.width,WORLD.height);r.begin();const c=r.ctx;
   drawTerrain(c,{x:r.camera.x,y:r.camera.y,w:r.camera.width,h:r.camera.height});drawBase(c,m.shelter,m.power,m.circuits,m.player);
   if(m.beacon&&!drawWeatherBeacon(c,m.beacon.x,m.beacon.y)){c.fillStyle='#cdd7b7';c.fillRect(m.beacon.x-2,m.beacon.y-30,4,30);c.fillStyle='#a7e2c8';c.fillRect(m.beacon.x-12,m.beacon.y-32,24,5);}
-  drawSamples(c,m);drawInteractionOutline(c,m);drawRover(c,m);drawRex(c,m);if(m.sleeping&&m.shelter==='command')drawSleeping(c,m);else if(!m.riding)drawAstronaut(c,m.player,m.character,!!m.shelter);r.end();drawAtmosphere(c,m,r.camera);
+  draw_hazard_objects(c,m);drawSamples(c,m);drawInteractionOutline(c,m);drawRover(c,m);drawRex(c,m);if(m.sleeping&&m.shelter==='command')drawSleeping(c,m);else if(!m.riding)drawAstronaut(c,m.player,m.character,!!m.shelter);r.end();drawAtmosphere(c,m,r.camera);
 }
 
 function drawSleeping(c:CanvasRenderingContext2D,m:Mission){

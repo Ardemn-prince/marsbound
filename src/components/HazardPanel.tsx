@@ -1,0 +1,4 @@
+'use client';
+import type {Mission} from '@/game/model';
+import {hazard_task_text} from '@/game/hazard-events';
+export default function HazardPanel({mission}:{mission:Mission}){const event=mission.hazard_event;if(!event||mission.elapsed>=event.ends_at)return null;const remaining=Math.max(0,Math.ceil(event.countdown_ends_at-mission.elapsed));return <aside className={'hazard-task-panel '+event.event_type} aria-label="Environmental hazard task" role="status"><strong>{event.event_type==='freezing'?'❄ FREEZING NIGHT':event.event_type==='dust'?'⚠ DUST STORM':'⚠ RADIATION EVENT'}</strong><span>{event.task_complete?'TASK COMPLETE':event.event_type==='radiation'?(remaining>0?remaining+'s TO SEAL AIRLOCK':'EXPOSURE ACTIVE'):event.event_type==='dust'?'TELEMETRY OFFLINE · τ '+event.optical_depth.toFixed(1):'−75°C · HEATER PRIORITY NEEDED'}</span><p>{hazard_task_text(event)}</p>{event.event_type==='radiation'&&<small>SIMULATED SOLAR EVENT</small>}</aside>;}
