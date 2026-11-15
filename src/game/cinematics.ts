@@ -1,4 +1,5 @@
 export interface BackstoryFrame{frame_id:string;title:string;subtitle:string;vo_trigger:string;sound_trigger:string;atlas_cell:number}
+export const si_generated_intro_frame_ids=['briefing','descent','ground_zero'] as const;
 export const intro_frames:BackstoryFrame[]=[
  {frame_id:'briefing',title:'Preliminary Mars survey',subtitle:'Assigned to the preliminary Mars survey... your mission is to explore its rich mineral deposits and evaluate its potential as a habitable second home for humanity.',vo_trigger:'vo_intro_01',sound_trigger:'interior_briefing_room_ambient',atlas_cell:0},
  {frame_id:'descent',title:'Arrival at Jezero',subtitle:'After months in deep space, you finally make landfall on the rust-colored plains of Jezero Crater...',vo_trigger:'vo_intro_02',sound_trigger:'rocket_descent_muffled',atlas_cell:1},
