@@ -12,7 +12,7 @@ export const SUSTENANCE_DRAIN_IDLE=.12;
 export const SUSTENANCE_DRAIN_ACTIVE=.18;
 export const SLEEP_DEPRIVATION_GRACE=45;
 export const SLEEP_DEPRIVATION_DAMAGE=.1;
-export const TEMPERATURE_CHANGE_RATE=.35;
+export const TEMPERATURE_CHANGE_RATE=.5;
 export const SLEEP_TIRED_THRESHOLD=25;
 export const canCollectSample=(m:Pick<Mission,'sleep'>)=>m.sleep>=SLEEP_TIRED_THRESHOLD;
 export function powerFlow(m:Mission){const f=forecast(m.elapsed);const solar=f.night?0:.75*(m.loadout.includes('solar')?1.5:1)*m.panelHealth*(f.active&&f.kind==='dust'?.15:1);const load=(m.circuits.greenhouse?(m.loadout.includes('moxie')?.1:.2):0)+(m.circuits.heater?(f.night?.4:.05):0)+(m.circuits.lab?(m.scanning?.4:.03):0)+(m.riding?.12:0);return {solar,load,net:solar+(m.loadout.includes('rtg')?.14:0)-load};}
