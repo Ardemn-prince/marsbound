@@ -33,3 +33,10 @@ export function fieldScan(m:Mission):Mission{
   const direction=Math.abs(dx)>Math.abs(dy)?(dx>0?'east':'west'):(dy>0?'south':'north');
   return {...m,player:{...m.player,action:.6},message:'Scanner: '+RARITIES[sample.rarity].name+' '+SCIENCE[sample.kind].name.toLowerCase()+' to the '+direction+'.'+(advanced?' Worth '+researchValue(sample)+' research points after lab analysis.':'')};
 }
+
+export function drillSample(m:Mission,sample:Sample):Mission{
+  if(m.riding)return {...m,message:'Leave the rover (V) before drilling a rock.'};
+  const next=collect(m,sample,4);
+  if(next.inventory.length===m.inventory.length)return next;
+  return {...next,player:{...next.player,action:.6,drilling:true},message:next.message.replace('Collected a','Drilled and collected a')};
+}

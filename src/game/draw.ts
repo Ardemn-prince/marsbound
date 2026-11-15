@@ -1,4 +1,4 @@
-import {drawSprite,walkFrame} from './sprites';
+import {drawSprite,walkFrame,drawWeatherBeacon} from './sprites';
 import {characterById} from './characters';
 import type { Renderer } from '@/engine/renderer';
 import type { Mission,Player } from './model';
@@ -13,7 +13,9 @@ export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nov
   const faceRight=Math.cos(p.facing)>=0;
   if(drawSprite(c,walkFrame(p.animation/10,p.moving),2,x-36,y-36,72,!faceRight)){
     // Colored shoulder patch keeps the chosen cadet identifiable behind the visor.
-    c.fillStyle=outfit.suit;c.fillRect(x+(faceRight?-9:5),y-5,5,4);return;
+    c.fillStyle=outfit.suit;c.fillRect(x+(faceRight?-9:5),y-5,5,4);
+    if(p.drilling&&p.action>0){const jitter=Math.floor(p.action*40)%2;drawSprite(c,0,1,x+(faceRight?2:-34),y-10+jitter,32,!faceRight);}
+    return;
   }
   c.fillStyle='#3b2b2a66';c.fillRect(x-15,y+20,32,7);
   c.fillStyle='#344653';c.fillRect(x-15,y-13,8,25);c.fillRect(x+11,y-13,8,25);
@@ -29,6 +31,6 @@ export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nov
 }
 export function drawScene(r:Renderer,m:Mission){r.camera.follow(m.player,WORLD.width,WORLD.height);r.begin();const c=r.ctx;
   drawTerrain(c,{x:r.camera.x,y:r.camera.y,w:r.camera.width,h:r.camera.height});drawWorldContent(c);drawBase(c,m.shelter,m.power,m.circuits);
-  if(m.beacon){c.fillStyle='#cdd7b7';c.fillRect(m.beacon.x-2,m.beacon.y-30,4,30);c.fillStyle='#a7e2c8';c.fillRect(m.beacon.x-12,m.beacon.y-32,24,5);}
+  if(m.beacon&&!drawWeatherBeacon(c,m.beacon.x,m.beacon.y)){c.fillStyle='#cdd7b7';c.fillRect(m.beacon.x-2,m.beacon.y-30,4,30);c.fillStyle='#a7e2c8';c.fillRect(m.beacon.x-12,m.beacon.y-32,24,5);}
   drawSamples(c,m);drawRover(c,m);drawRex(c,m);if(!m.riding)drawAstronaut(c,m.player,m.character);r.end();drawAtmosphere(c,m,r.camera);
 }

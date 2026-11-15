@@ -11,3 +11,11 @@ export function drawSprite(c:CanvasRenderingContext2D,column:number,row:number,x
   c.restore();return true;
 }
 export const walkFrame=(time:number,moving:boolean)=>moving?Math.floor(time*8)%4:3;
+
+let weatherBeacon:HTMLImageElement|undefined;
+export function drawWeatherBeacon(c:CanvasRenderingContext2D,x:number,y:number):boolean{
+  if(typeof Image==='undefined')return false;
+  if(!weatherBeacon){weatherBeacon=new Image();weatherBeacon.src='/sprites/weather-beacon-v1.png';}
+  if(!weatherBeacon.complete||!weatherBeacon.naturalWidth)return false;
+  c.save();c.imageSmoothingEnabled=false;c.drawImage(weatherBeacon,Math.round(x)-30,Math.round(y)-52,60,60);c.restore();return true;
+}
