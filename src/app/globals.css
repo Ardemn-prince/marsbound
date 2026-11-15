@@ -34,3 +34,7 @@ html,body{width:100%;height:100%;overflow:hidden}.immersive{height:100dvh;width:
 
 .beacon-sprite-icon{display:block;width:42px;height:42px;background:url('/sprites/weather-beacon-v1.png') center/contain no-repeat;image-rendering:pixelated;flex-shrink:0}
 @media(max-width:1000px){.beacon-sprite-icon{width:32px;height:32px}}
+
+.environment-rock-icon{display:block;width:38px;height:38px;background-image:url('/sprites/mars-environment-v1.png');background-size:300% 300%;background-repeat:no-repeat;image-rendering:pixelated;flex-shrink:0}
+.beacon-sprite-icon{background-image:url('/sprites/mars-environment-v1.png');background-size:300% 300%;background-position:100% 50%}
+@media(max-width:1000px){.environment-rock-icon{width:30px;height:30px}}
