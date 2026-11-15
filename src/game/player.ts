@@ -8,6 +8,7 @@ export function movePlayer(player:Player,input:Controls,dt:number,obstacles:Rect
   const wrapped=wrapPosition({x:p.x+dx,y:p.y+dy},width,height);const x=wrapped.x,y=wrapped.y;
   if(!obstacles.some(r=>contains(r,{x,y:p.y},10)))p.x=x;
   if(!obstacles.some(r=>contains(r,{x:p.x,y},10)))p.y=y;
+  p.moving=p.x!==player.x||p.y!==player.y;
   if(input.x||input.y)p.facing=Math.atan2(input.y,input.x);return p;
 }
 export function nearest<T extends Vec2>(player:Vec2,objects:T[],range=64):T|undefined{return objects.filter(o=>wrappedDistance(player,o)<=range).sort((a,b)=>wrappedDistance(player,a)-wrappedDistance(player,b))[0];}

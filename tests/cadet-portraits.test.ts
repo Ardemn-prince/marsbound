@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {CADET_CHOICES,characterGender} from '../src/game/characters';
+import {launch} from '../src/game/progression';
+import {decodeSave,encodeSave} from '../src/game/save';
+import {drybedX} from '../src/game/world';
+import {riverSourceRow} from '../src/game/sprites';
+import {rexExpression} from '../src/game/rex';
+test('two cadet choices and legacy cadets retain their gender and saves',()=>{assert.equal(CADET_CHOICES.length,2);for(const id of ['nova','leo','aya','kai'])assert.equal(decodeSave(encodeSave(launch([],id))).character,id);assert.equal(characterGender('nova'),'girl');assert.equal(characterGender('leo'),'boy');assert.equal(characterGender('aya'),'girl');assert.equal(characterGender('kai'),'boy');});
+test('river path and repeated texture have no discontinuities',()=>{for(let y=1;y<3200;y++){assert.ok(Math.abs(drybedX(y)-drybedX(y-1))<1);assert.ok(Math.abs(riverSourceRow(y)-riverSourceRow(y-1))<=1);}});
+test('Rex danger portrait overrides all other expressions',()=>{const m=launch([]);assert.equal(rexExpression({...m,oxygen:10,power:0,scanning:{id:'sample-0',remaining:4}}),2);assert.equal(rexExpression({...m,power:0}),4);assert.equal(rexExpression({...m,scanning:{id:'sample-0',remaining:4}}),5);});

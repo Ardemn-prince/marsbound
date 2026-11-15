@@ -1,5 +1,5 @@
-import {drawSprite,walkFrame,drawWeatherBeacon} from './sprites';
-import {characterById} from './characters';
+import {drawSprite,walkFrame,drawWeatherBeacon,drawDetailSprite,drawAtlasCell} from './sprites';
+import {characterById,characterGender} from './characters';
 import type { Renderer } from '@/engine/renderer';
 import type { Mission,Player } from './model';
 import { drawTerrain,drawWorldContent } from './world';
@@ -9,8 +9,10 @@ import { drawRex } from './rex';
 import { drawAtmosphere } from './hazards';
 import { drawRover } from './rover';
 import { WORLD } from './world';
-export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nova'){const outfit=characterById(character);const x=Math.round(p.x),y=Math.round(p.y);const step=p.moving?Math.round(Math.sin(p.animation)*3):0;
+export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nova',indoors=false){const outfit=characterById(character);const x=Math.round(p.x),y=Math.round(p.y);const step=p.moving?Math.round(Math.sin(p.animation)*3):0;
   const faceRight=Math.cos(p.facing)>=0;
+  if(indoors&&drawAtlasCell(c,'cadets-v1.png',4,2,p.moving?[1,2,3,2][Math.floor(p.animation*.8)%4]:0,characterGender(character)==='girl'?1:0,x-36,y-35,72,72,!faceRight))return;
+  if(!p.moving&&p.action<=0&&drawDetailSprite(c,'idle',x-15,y-31,30,56,!faceRight)){c.fillStyle=outfit.suit;c.fillRect(x+(faceRight?-10:6),y-7,4,4);return;}
   if(drawSprite(c,walkFrame(p.animation/10,p.moving),2,x-36,y-36,72,!faceRight)){
     // Colored shoulder patch keeps the chosen cadet identifiable behind the visor.
     c.fillStyle=outfit.suit;c.fillRect(x+(faceRight?-9:5),y-5,5,4);
@@ -32,5 +34,5 @@ export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nov
 export function drawScene(r:Renderer,m:Mission){r.camera.follow(m.player,WORLD.width,WORLD.height);r.begin();const c=r.ctx;
   drawTerrain(c,{x:r.camera.x,y:r.camera.y,w:r.camera.width,h:r.camera.height});drawWorldContent(c);drawBase(c,m.shelter,m.power,m.circuits,m.player);
   if(m.beacon&&!drawWeatherBeacon(c,m.beacon.x,m.beacon.y)){c.fillStyle='#cdd7b7';c.fillRect(m.beacon.x-2,m.beacon.y-30,4,30);c.fillStyle='#a7e2c8';c.fillRect(m.beacon.x-12,m.beacon.y-32,24,5);}
-  drawSamples(c,m);drawRover(c,m);drawRex(c,m);if(!m.riding)drawAstronaut(c,m.player,m.character);r.end();drawAtmosphere(c,m,r.camera);
+  drawSamples(c,m);drawRover(c,m);drawRex(c,m);if(!m.riding)drawAstronaut(c,m.player,m.character,!!m.shelter);r.end();drawAtmosphere(c,m,r.camera);
 }
