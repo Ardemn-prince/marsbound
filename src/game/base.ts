@@ -1,6 +1,6 @@
 import { contains,type Rect,type Vec2 } from '@/engine/math';
 export type Facility=Rect & {id:'command'|'lab'|'storage'|'greenhouse';name:string;accent:string};
-export const facilities:Facility[]=[{id:'command',name:'COMMAND / HAB-01',x:2200,y:1430,w:340,h:340,accent:'#6aa7b7'},{id:'lab',name:'SCIENCE LAB',x:2580,y:1500,w:240,h:220,accent:'#7cc6d1'},{id:'storage',name:'STORAGE DOME',x:1990,y:1520,w:220,h:210,accent:'#d9ad69'},{id:'greenhouse',name:'GREENHOUSE',x:2870,y:1450,w:300,h:300,accent:'#83c887'}];
+export const facilities:Facility[]=[{id:'command',name:'COMMAND / HAB-01',x:2200,y:1430,w:340,h:340,accent:'#6aa7b7'},{id:'lab',name:'SCIENCE LAB',x:2580,y:1500,w:240,h:220,accent:'#7cc6d1'},{id:'storage',name:'STORAGE DOME',x:1930,y:1520,w:220,h:210,accent:'#d9ad69'},{id:'greenhouse',name:'GREENHOUSE',x:2870,y:1450,w:300,h:300,accent:'#83c887'}];
 export const facilityWalls:Rect[]=facilities.flatMap(f=>[{x:f.x,y:f.y,w:f.w,h:10},{x:f.x,y:f.y,w:10,h:f.h},{x:f.x+f.w-10,y:f.y,w:10,h:f.h},{x:f.x,y:f.y+f.h-10,w:f.w/2-28,h:10},{x:f.x+f.w/2+28,y:f.y+f.h-10,w:f.w/2-28,h:10}]);
 export const shelterAt=(p:Vec2)=>facilities.find(f=>contains(f,p,-11))?.id??null;
 export const stations=facilities.map(f=>({id:f.id,x:f.x+f.w/2,y:f.y+f.h-65,name:f.name}));
