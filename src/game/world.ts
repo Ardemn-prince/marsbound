@@ -12,7 +12,7 @@ export const drybedX=(y:number)=>BASE_CENTER.x+Math.sin(y/180)*130;
 export const clearRockPosition=(p:Vec2,padding=25):Vec2=>{
  const left=drybedX(p.y);let x=p.x;
  if(x>left-padding&&x<left+68+padding)x=left-padding-8;
- if(x>2480-padding&&x<2720+padding&&p.y>1880-padding&&p.y<2110+padding)x=2450-padding;
+ if(x>2480-padding&&x<2720+padding&&p.y>1880-padding&&p.y<2170+padding)x=2450-padding;
  return {x,y:p.y};
 };
 export const biomeBlend=(p:Vec2)=>{const r=wrappedDistance(p,BASE_CENTER);const smooth=(v:number)=>{const t=Math.max(0,Math.min(1,v));return t*t*(3-2*t);};return {delta:smooth((r-360)/320),margin:smooth((r-940)/320)};};

@@ -1,5 +1,5 @@
 import {distance,type Rect} from '@/engine/math';
-import {bed,facilities,greenhouseFoodStation,greenhouseOxygenStation,stations} from './base';
+import {bed,facilities,greenhouseFoodStation,greenhouseOxygenStation,solarFieldBounds,stations} from './base';
 import type {Mission} from './model';
 import {samples} from './research';
 import {nearest} from './player';
@@ -13,7 +13,7 @@ export function interactionTarget(m:Mission):InteractionTarget|null{
   if(distance(m.player,greenhouseFoodStation)<65)return box('food','Eat meal',3043,1632,74,62);
   return null;
  }
- if(distance(m.player,{x:2620,y:1985})<100)return box('solar','Clean panels',2512,1907,186,184);
+ if(distance(m.player,{x:2620,y:1985})<100)return box('solar','Clean panels',solarFieldBounds.x,solarFieldBounds.y,solarFieldBounds.w,solarFieldBounds.h);
  if(m.shelter==='storage')return box('storage','Recharge rover',2005,1639,70,44);
  const sample=nearest(m.player,samples.filter(s=>!m.collected.includes(s.id)),52);
  if(sample)return box(sample.id,'Drill and collect',sample.x-20,sample.y-23,40,42);
