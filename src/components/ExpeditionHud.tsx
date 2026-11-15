@@ -9,7 +9,7 @@ import {useMission} from '@/game/store';
 import {gameInput} from './GameCanvas';
 import {greenhouseFoodInterval} from '@/game/base';
 
-function Sprite({kind}:{kind:string}){return <span className={'item-art item-'+kind} aria-hidden="true"/>;}
+function Sprite({kind}:{kind:string}){const cell:Record<string,[number,number]>={rock:[0,0],scanner:[0,1],beacon:[2,1],rover:[3,1]};const sprite=cell[kind];if(sprite)return <span className="atlas-icon" style={{backgroundPosition:(sprite[0]*100/3)+'% '+(sprite[1]*100/3)+'%'}} aria-hidden="true"/>;return <span className={'item-art item-'+kind} aria-hidden="true"/>;}
 function Gauge({label,value,max=100,kind}:{label:string;value:number;max?:number;kind:string}){return <div className={'survival-gauge '+kind} role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.round(value)} title={label+': '+Math.round(value)+' / '+max}><span className="gauge-emblem">{kind==='health'?'♥':kind==='air'?'O₂':kind==='sleep'?'Zz':kind==='food'?'●':'ϟ'}</span><div className="gauge-well"><i style={{height:Math.max(0,Math.min(100,value/max*100))+'%'}}/></div><small>{Math.round(value)}</small></div>;}
 export default function ExpeditionHud({m}:{m:Mission}){const f=forecast(m.elapsed);const store=useMission.getState();const [selected,setSelected]=useState(0);const [notice,setNotice]=useState('');const pulse=(key:string)=>{gameInput.current?.set(key,true);gameInput.current?.set(key,false);};
   useEffect(()=>{const show=setTimeout(()=>setNotice(m.message),0);const hide=setTimeout(()=>setNotice(''),6500);return()=>{clearTimeout(show);clearTimeout(hide);};},[m.message]);

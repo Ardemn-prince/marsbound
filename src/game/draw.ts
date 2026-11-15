@@ -1,3 +1,4 @@
+import {drawSprite,walkFrame} from './sprites';
 import {characterById} from './characters';
 import type { Renderer } from '@/engine/renderer';
 import type { Mission,Player } from './model';
@@ -10,6 +11,10 @@ import { drawRover } from './rover';
 import { WORLD } from './world';
 export function drawAstronaut(c:CanvasRenderingContext2D,p:Player,character='nova'){const outfit=characterById(character);const x=Math.round(p.x),y=Math.round(p.y);const step=p.moving?Math.round(Math.sin(p.animation)*3):0;
   const faceRight=Math.cos(p.facing)>=0;
+  if(drawSprite(c,walkFrame(p.animation/10,p.moving),2,x-36,y-36,72,!faceRight)){
+    // Colored shoulder patch keeps the chosen cadet identifiable behind the visor.
+    c.fillStyle=outfit.suit;c.fillRect(x+(faceRight?-9:5),y-5,5,4);return;
+  }
   c.fillStyle='#3b2b2a66';c.fillRect(x-15,y+20,32,7);
   c.fillStyle='#344653';c.fillRect(x-15,y-13,8,25);c.fillRect(x+11,y-13,8,25);
   c.fillStyle=outfit.suit;c.fillRect(x-11,y-9,23,25);c.fillRect(x-9,y+11+step,7,11);c.fillRect(x+4,y+11-step,7,11);
