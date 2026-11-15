@@ -5,7 +5,7 @@ import {movePlayer} from '../src/game/player';
 import {hazardVisualState} from '../src/game/hazards';
 import {SOL_SECONDS} from '../src/game/forecast';
 import {interactionTarget} from '../src/game/interaction-target';
-import {bed,conduitRoutes,facilities} from '../src/game/base';
+import {bed,conduitRoutes,facilities,solarPanelHeight,solarPanelWidth,solarPlots} from '../src/game/base';
 import {GEOLOGY,nearbyLandform} from '../src/game/geology';
 import {landforms,riftGapObstacles} from '../src/game/world';
 import {useMission} from '../src/game/store';
@@ -13,5 +13,6 @@ test('each hazard has lower visual intensity and coverage inside every shelter',
 test('running animates faster but stops when blocked or idle',()=>{const p=launch([]).player;const walk=movePlayer(p,{x:1,y:0,dash:false},.1,[]),run=movePlayer(p,{x:1,y:0,dash:true},.1,[]);assert.ok(run.running);assert.ok(run.animation>walk.animation);assert.ok(run.x>walk.x);assert.equal(movePlayer(run,{x:0,y:0,dash:true},.1,[]).running,false);assert.equal(movePlayer(p,{x:1,y:0,dash:true},.1,[{x:p.x+1,y:p.y-20,w:50,h:40}]).running,false);});
 test('interaction outlines select the nearby bed and console without targeting roofs',()=>{const m=launch([]);assert.equal(interactionTarget({...m,shelter:'command',player:{...m.player,...bed}})?.id,'bed');assert.notEqual(interactionTarget({...m,shelter:null,player:{...m.player,...bed}})?.id,'bed');});
 test('solar conduits reach all four facilities from a shared bus',()=>{const routes=conduitRoutes();assert.equal(routes.length,4);for(const f of facilities){const route=routes.find(r=>r.id===f.id)!;const end=route.points.at(-1)!;assert.ok(end.x>f.x&&end.x<f.x+f.w);assert.equal(end.y,f.y+f.h-10);assert.deepEqual(route.points[0],routes[0].points[0]);}});
+test('solar panels are taller without widening and keep separate serviced plots',()=>{assert.equal(solarPlots.length,4);assert.ok(solarPanelHeight>84);assert.equal(solarPanelWidth,70);for(const plot of solarPlots){assert.equal(plot.w,solarPanelWidth);assert.equal(plot.h,solarPanelHeight);}assert.ok(solarPlots[2].y-solarPlots[0].y>solarPanelHeight);});
 test('large landforms expose inspectable field notes without changing resources',()=>{const m=launch([]);for(const s of landforms){assert.ok(s.w>=600&&s.h>=400);assert.ok(GEOLOGY[s.id]);assert.equal(nearbyLandform(s)?.id,s.id);}const s=landforms[0];useMission.setState({mission:{...m,player:{...m.player,x:s.x,y:s.y}}});useMission.getState().interact();assert.equal(useMission.getState().mission.panel,'geology:'+s.id);assert.equal(useMission.getState().mission.points,m.points);});
 test('the rift chasm blocks traversal while its plateaus remain usable',()=>{const gap=riftGapObstacles[2];const p=launch([]).player;const blocked=movePlayer({...p,x:gap.x-30,y:gap.y+gap.h/2},{x:1,y:0,dash:false},1,riftGapObstacles);assert.equal(blocked.x,gap.x-30);const open=movePlayer({...p,x:gap.x-30,y:gap.y+gap.h+30},{x:1,y:0,dash:false},1,riftGapObstacles);assert.ok(open.x>gap.x-30);});

@@ -17,7 +17,6 @@ export function drawAirlock(c:CanvasRenderingContext2D,f:Facility,player?:Vec2,i
  }
  // Generated open-door art retains a panel: carve the real passage when approached.
  if(open){c.fillStyle='#1e292d';c.fillRect(x-23,y-50,46,50);c.fillStyle='#799288';c.fillRect(x-23,y-3,46,3);}
- c.fillStyle=open?'#9be6be':'#dcbf79';c.fillRect(x-12,y-59,24,3);
 
 }
 export function drawFacilityInterior(c:CanvasRenderingContext2D,f:Facility){
