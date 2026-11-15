@@ -45,7 +45,21 @@ export function drawTerrain(c:CanvasRenderingContext2D,view:Rect){c.fillStyle=RE
   for(let y=Math.max(0,Math.floor(view.y/16)*16);y<Math.min(WORLD.height,view.y+view.h+16);y+=16)for(let x=Math.max(0,Math.floor(view.x/16)*16);x<Math.min(WORLD.width,view.x+view.w+16);x+=16){const blend=biomeBlend({x:x+8,y:y+8});drawGroundTile(c,0,x,y,16);c.save();c.globalAlpha=blend.delta;drawGroundTile(c,1,x,y,16);c.globalAlpha=blend.margin;drawGroundTile(c,2,x,y,16);c.restore();}
   // Slice the reference channel along the existing cleared winding route.
   for(let y=Math.max(0,Math.floor(view.y));y<Math.min(WORLD.height,view.y+view.h+1);y+=1){drawRiverStrip(c,drybedX(y),y);}
+  drawWorldContent(c,view);
   for(let i=0;i<110;i++){const x=40+noise(i,71)*(WORLD.width-80),y=40+noise(i,73)*(WORLD.height-80),r=8+noise(i,75)*18;if(x<view.x-40||x>view.x+view.w+40||y<view.y-40||y>view.y+view.h+40)continue;c.fillStyle='#4d302c55';c.beginPath();c.ellipse(x,y,r,r*.45,0,0,Math.PI*2);c.fill();c.fillStyle='#d89b7655';c.beginPath();c.ellipse(x-3,y-3,r*.65,r*.25,0,0,Math.PI*2);c.fill();}
   for(const o of obstacles){if(o.x<view.x-100||o.x>view.x+view.w+100||o.y<view.y-100||o.y>view.y+view.h+100)continue;if(drawEnvironmentSprite(c,regionAt(o).id==='seitah'?'basalt':regionAt(o).id==='delta'?'mudstone':'clay',o.x,o.y-8,o.w,o.h+8))continue;c.fillStyle='#704b3e66';c.fillRect(o.x+8,o.y+o.h-4,o.w+8,12);c.fillStyle='#533b3e';c.fillRect(Math.round(o.x)-2,Math.round(o.y)+5,Math.round(o.w)+4,Math.round(o.h)-3);c.fillStyle='#94634f';c.fillRect(Math.round(o.x),Math.round(o.y)+7,Math.round(o.w),Math.round(o.h)-7);c.fillStyle='#bb855f';c.fillRect(o.x+5,o.y,o.w-12,12);c.fillStyle='#e5b77f';c.fillRect(o.x+8,o.y+2,o.w-19,4);}
 }
-export function drawWorldContent(c:CanvasRenderingContext2D){for(const s of structures){const x=Math.round(s.x),y=Math.round(s.y);const cell={crater:0,outcrop:1,lavaTube:2,dune:3,channel:4}[s.kind];if(drawAtlasCell(c,'formations-v1.png',3,2,cell%3,Math.floor(cell/3),x-100,y-90,200,180))continue;c.fillStyle='#3c2b2c66';c.fillRect(x-60,y+28,120,12);c.fillStyle='#60443d';if(s.kind==='crater'){c.beginPath();c.ellipse(x,y,78,42,0,0,Math.PI*2);c.fill();c.fillStyle='#b8735e';c.beginPath();c.ellipse(x,y-4,55,26,0,0,Math.PI*2);c.fill();c.fillStyle='#4d3735';c.beginPath();c.ellipse(x,y-8,30,13,0,0,Math.PI*2);c.fill();}else if(s.kind==='outcrop'){c.fillStyle='#765348';c.fillRect(x-56,y-14,112,30);c.fillStyle='#c18a68';c.fillRect(x-48,y-28,96,14);c.fillStyle='#e0b07e';c.fillRect(x-34,y-39,72,11);c.fillStyle='#5d443d';for(let i=0;i<4;i++)c.fillRect(x-35+i*20,y-25,3,44);}else if(s.kind==='lavaTube'){c.beginPath();c.arc(x,y+3,55,Math.PI,0);c.fill();c.fillStyle='#251f29';c.beginPath();c.arc(x,y+4,35,Math.PI,0);c.fill();}else if(s.kind==='dune'){c.fillStyle='#a86f57';for(let i=0;i<5;i++){c.beginPath();c.ellipse(x-50+i*25,y+4-(i%2)*8,42,18,0,0,Math.PI*2);c.fill();}}else{c.fillStyle='#9c6c58';c.fillRect(x-55,y-8,110,18);c.fillStyle='#d6a177';c.fillRect(x-40,y-17,80,6);c.fillStyle='#70483e';c.fillRect(x-18,y-25,36,7);}}}
+
+// Large walkable geological exhibits. Their scale is illustrative, not a survey map.
+export const landforms=[...structures.map(s=>({...s,x:s.kind==='outcrop'?s.x+140:s.x,w:s.kind==='channel'?740:680,h:s.kind==='channel'?480:520})),{id:'riftValley',region:'margin',x:3950,y:2450,kind:'rift',w:680,h:520}];
+export function drawWorldContent(c:CanvasRenderingContext2D,view?:Rect){for(const s of landforms){
+ if(view&&(s.x+s.w/2<view.x||s.x-s.w/2>view.x+view.w||s.y+s.h/2<view.y||s.y-s.h/2>view.y+view.h))continue;
+ const x=Math.round(s.x),y=Math.round(s.y);
+ c.save();
+ // Preserve the continuous riverbed even where a geological exhibit crosses it.
+ c.beginPath();c.rect(0,0,WORLD.width,WORLD.height);for(let yy=Math.max(0,Math.floor((s.y-s.h/2)/4)*4);yy<Math.min(WORLD.height,s.y+s.h/2);yy+=4)c.rect(drybedX(yy)-4,yy,76,4);c.clip('evenodd');
+ if(s.kind==='rift'){
+  for(let layer=0;layer<5;layer++){c.fillStyle=['#b58464','#966247','#744b39','#50372e','#2d2525'][layer];c.beginPath();for(let i=0;i<=24;i++){const yy=y-s.h/2+i*s.h/24,xx=x+Math.sin(i*.35)*75+Math.sin(i*1.7)*12;const half=100-layer*18;if(i===0)c.moveTo(xx-half,yy);else c.lineTo(xx-half,yy);}for(let i=24;i>=0;i--){const yy=y-s.h/2+i*s.h/24,xx=x+Math.sin(i*.35)*75+Math.sin(i*1.7)*12;c.lineTo(xx+100-layer*18,yy);}c.closePath();c.fill();}
+ }else{const cell=({crater:0,outcrop:1,lavaTube:2,dune:3,channel:4} as Record<string,number>)[s.kind];drawAtlasCell(c,'formations-v1.png',3,2,cell%3,Math.floor(cell/3),x-s.w/2,y-s.h/2,s.w,s.h);}
+ c.restore();
+}}

@@ -1,0 +1,16 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {launch} from '../src/game/progression';
+import {movePlayer} from '../src/game/player';
+import {hazardVisualState} from '../src/game/hazards';
+import {SOL_SECONDS} from '../src/game/forecast';
+import {interactionTarget} from '../src/game/interaction-target';
+import {bed,conduitRoutes,facilities} from '../src/game/base';
+import {GEOLOGY,nearbyLandform} from '../src/game/geology';
+import {landforms} from '../src/game/world';
+import {useMission} from '../src/game/store';
+test('each hazard has lower visual intensity and coverage inside every shelter',()=>{for(const elapsed of [270/360*SOL_SECONDS,160/360*SOL_SECONDS,7*SOL_SECONDS+160/360*SOL_SECONDS]){const outdoors=hazardVisualState({elapsed,shelter:null});assert.ok(outdoors.cold||outdoors.dust||outdoors.radiation);for(const f of facilities){const indoors=hazardVisualState({elapsed,shelter:f.id});assert.ok(indoors.intensity<outdoors.intensity);assert.ok(indoors.coverage<outdoors.coverage);}}});
+test('running animates faster but stops when blocked or idle',()=>{const p=launch([]).player;const walk=movePlayer(p,{x:1,y:0,dash:false},.1,[]),run=movePlayer(p,{x:1,y:0,dash:true},.1,[]);assert.ok(run.running);assert.ok(run.animation>walk.animation);assert.ok(run.x>walk.x);assert.equal(movePlayer(run,{x:0,y:0,dash:true},.1,[]).running,false);assert.equal(movePlayer(p,{x:1,y:0,dash:true},.1,[{x:p.x+1,y:p.y-20,w:50,h:40}]).running,false);});
+test('interaction outlines select the nearby bed and console without targeting roofs',()=>{const m=launch([]);assert.equal(interactionTarget({...m,shelter:'command',player:{...m.player,...bed}})?.id,'bed');assert.notEqual(interactionTarget({...m,shelter:null,player:{...m.player,...bed}})?.id,'bed');});
+test('solar conduits reach all four facilities from a shared bus',()=>{const routes=conduitRoutes();assert.equal(routes.length,4);for(const f of facilities){const route=routes.find(r=>r.id===f.id)!;const end=route.points.at(-1)!;assert.ok(end.x>f.x&&end.x<f.x+f.w);assert.equal(end.y,f.y+f.h-10);assert.deepEqual(route.points[0],routes[0].points[0]);}});
+test('large landforms expose inspectable field notes without changing resources',()=>{const m=launch([]);for(const s of landforms){assert.ok(s.w>=600&&s.h>=400);assert.ok(GEOLOGY[s.id]);assert.equal(nearbyLandform(s)?.id,s.id);}const s=landforms[0];useMission.setState({mission:{...m,player:{...m.player,x:s.x,y:s.y}}});useMission.getState().interact();assert.equal(useMission.getState().mission.panel,'geology:'+s.id);assert.equal(useMission.getState().mission.points,m.points);});

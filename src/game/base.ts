@@ -12,6 +12,7 @@ export const greenhouseFoodInterval=90;
 export const bed={x:2270,y:1550};
 export function facilityPowered(f:Facility,power:number,circuits:{lab:boolean;greenhouse:boolean;heater:boolean}){if(power<=.01)return false;if(f.id==='greenhouse')return circuits.greenhouse;if(f.id==='lab')return circuits.lab;if(f.id==='command')return circuits.heater;return true;}
 export function drawBase(c:CanvasRenderingContext2D,shelter:string|null,power=100,circuits={lab:true,greenhouse:true,heater:true},player?:Vec2){
+  drawPowerConduits(c,power,circuits);
   for(const f of facilities){const inside=shelter===f.id,online=facilityPowered(f,power,circuits);const x=f.x,y=f.y;
     if(!inside&&drawEnvironmentSprite(c,f.id,x,y,f.w,f.h,online)){
       if(f.id==='lab'||f.id==='greenhouse')drawAirlock(c,f,player);
@@ -32,4 +33,12 @@ export function drawBase(c:CanvasRenderingContext2D,shelter:string|null,power=10
   // Solar field on fixed serviced plots.
   for(let i=0;i<4;i++){const x=2515+i%2*110,y=1910+Math.floor(i/2)*94;if(drawEnvironmentSprite(c,'solar',x,y,70,84))continue;c.fillStyle='#635246';c.fillRect(x+7,y+25,48,10);c.fillStyle='#24466c';c.fillRect(x,y,58,29);c.strokeStyle='#71b9cd';c.strokeRect(x,y,58,29);for(let j=1;j<4;j++){c.beginPath();c.moveTo(x+j*14,y);c.lineTo(x+j*14,y+29);c.stroke();}c.beginPath();c.moveTo(x,y+14);c.lineTo(x+58,y+14);c.stroke();}
   if(shelter==='greenhouse')for(const [station,color,label] of [[greenhouseOxygenStation,'#8bd1df','O₂'],[greenhouseFoodStation,'#b7d77e','FOOD']] as const){c.fillStyle=color;c.fillRect(station.x-20,station.y+20,40,3);c.font='bold 8px monospace';c.textAlign='center';c.fillStyle='#eff1cd';c.fillText(label,station.x,station.y+33);}
+}
+
+export const solarBus={x:2760,y:1840};
+export function conduitRoutes(){return facilities.map(f=>({id:f.id,points:[solarBus,{x:f.x+f.w-18,y:solarBus.y},{x:f.x+f.w-18,y:f.y+f.h-10}]}));}
+function drawPowerConduits(c:CanvasRenderingContext2D,power:number,circuits:{lab:boolean;greenhouse:boolean;heater:boolean}){
+ c.save();c.lineJoin='round';const path=(points:Vec2[],online:boolean)=>{for(const [width,color] of [[10,'#352c29'],[6,online?'#af8040':'#606467'],[2,online?'#ffe3a0':'#92948b']] as const){c.strokeStyle=color;c.lineWidth=width;c.beginPath();points.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();}for(const p of points){c.fillStyle='#3b4243';c.fillRect(p.x-5,p.y-5,10,10);c.fillStyle=online?'#e6cb79':'#7b8584';c.fillRect(p.x-2,p.y-2,4,4);}};
+ for(let i=0;i<4;i++){const x=2550+i%2*110,y=1990+Math.floor(i/2)*94;path([{x,y},{x:solarBus.x,y},solarBus],power>0);}
+ for(const route of conduitRoutes())path(route.points,facilityPowered(facilities.find(f=>f.id===route.id)!,power,circuits));c.restore();
 }
